@@ -47,10 +47,16 @@ public class SecurityConfig {
 //                        .permitAll()
 //                )
                 .authorizeHttpRequests((authorize) -> authorize
-                                .requestMatchers("/test").authenticated()
-//                                .requestMatchers("/customers/edit").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
-                                .requestMatchers("/authenticate/**", "/login").permitAll()
-                                .anyRequest().permitAll()
+//                                .requestMatchers("/test").authenticated()
+//                                .requestMatchers("/users/sign-out").authenticated()
+//                                .requestMatchers("/familyTree/**").authenticated()
+                                .requestMatchers("/familytree-api-docs",
+                                        "/familytree-documentation",
+                                        "/swagger-ui/**").permitAll()
+                        .requestMatchers("/users/sign-in",
+                                "/users/forgetPassword/**",
+                                "/users/register/**").permitAll()
+                                .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface UserAccountRepository extends JpaRepository<UserAccountEntity, Integer> {
+public interface UserAccountRepo extends JpaRepository<UserAccountEntity, Integer> {
     boolean existsByUserEmail(String email);
     UserAccountEntity findFirstByUserId(int id);
     UserAccountEntity findFirstByUserEmail(String email);

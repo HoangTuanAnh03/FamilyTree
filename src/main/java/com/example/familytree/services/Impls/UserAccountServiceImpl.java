@@ -9,10 +9,10 @@ import com.example.familytree.enums.VerificationEnum;
 import com.example.familytree.models.dto.ResetPasswordDto;
 import com.example.familytree.models.dto.UpdateUserAccountDto;
 import com.example.familytree.models.dto.UserAccountDto;
-import com.example.familytree.repositories.KeyRepository;
-import com.example.familytree.repositories.OtpRepository;
-import com.example.familytree.repositories.UserAccountRepository;
-import com.example.familytree.repositories.VerificationCodeRepository;
+import com.example.familytree.repositories.KeyRepo;
+import com.example.familytree.repositories.OtpRepo;
+import com.example.familytree.repositories.UserAccountRepo;
+import com.example.familytree.repositories.VerificationCodeRepo;
 import com.example.familytree.security.JwtService;
 import com.example.familytree.services.SendMailService;
 import com.example.familytree.services.UserAccountService;
@@ -34,10 +34,10 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class UserAccountServiceImpl implements UserAccountService {
 
-    private final UserAccountRepository userRepository;
-    private final OtpRepository otpRepository;
-    private final VerificationCodeRepository verificationCodeRepository;
-    private final KeyRepository keyRepository;
+    private final UserAccountRepo userRepository;
+    private final OtpRepo otpRepo;
+    private final VerificationCodeRepo verificationCodeRepo;
+    private final KeyRepo keyRepo;
 
     private final JwtService jwtService;
     private final SendMailService sendMailService;
@@ -172,18 +172,18 @@ public class UserAccountServiceImpl implements UserAccountService {
                     sendMailService.registerUser(userAccountEntity, code);
                     userRepository.save(userAccountEntity);
                     // xóa 1 đối tượng cũ
-                    verificationCodeRepository.deleteById(userByEmail.getUserId());
-                    keyRepository.deleteById(userByEmail.getUserId());
+                    verificationCodeRepo.deleteById(userByEmail.getUserId());
+                    keyRepo.deleteById(userByEmail.getUserId());
                     userRepository.deleteById(userByEmail.getUserId());
 
                     // Lấy idUser vừa thêm
                     UserAccountEntity currentUser = userRepository.findFirstByUserEmail(newUser.getUserEmail());
 
                     /* Tạo VerificationCode và kiểm tra xem có email đó chưa*/
-                    VerificationCodeEntity codeByEmail = verificationCodeRepository.findFirstByEmail(newUser.getUserEmail());
+                    VerificationCodeEntity codeByEmail = verificationCodeRepo.findFirstByEmail(newUser.getUserEmail());
                     /* Email đã có trong bảng verificationCode thì cập nhật code với hạn mới */
                     if (codeByEmail != null) {
-                        verificationCodeRepository.delete(codeByEmail);
+                        verificationCodeRepo.delete(codeByEmail);
                     }
 
                     /* Tạo mới */
@@ -193,14 +193,14 @@ public class UserAccountServiceImpl implements UserAccountService {
                             code,
                             currentDay
                     );
-                    verificationCodeRepository.save(verificationCode);
+                    verificationCodeRepo.save(verificationCode);
 
                     /* Thêm vào bảng key */
                         // Kiểm tra xem đã tồn tại userID trong bảng Key chưa
-                    KeyTokenEntity keyByUserId = keyRepository.findFirstByUserId(currentUser.getUserId());
+                    KeyTokenEntity keyByUserId = keyRepo.findFirstByUserId(currentUser.getUserId());
 
                     if (keyByUserId != null) {
-                        keyRepository.delete(keyByUserId);
+                        keyRepo.delete(keyByUserId);
                     }
 
                     KeyTokenEntity newKey = KeyTokenEntity.create(
@@ -209,7 +209,7 @@ public class UserAccountServiceImpl implements UserAccountService {
                             publicKey,
                             jwtService.generateRefreshToken(userByEmail.getUserEmail(), privateKey)
                     );
-                    keyRepository.save(newKey);
+                    keyRepo.save(newKey);
 
                     return RegisterEnum.SUCCESS;
                 }
@@ -232,10 +232,10 @@ public class UserAccountServiceImpl implements UserAccountService {
                 UserAccountEntity currentUser = userRepository.findFirstByUserEmail(newUser.getUserEmail());
 
                 /* Tạo VerificationCode và kiểm tra xem có email đó chưa*/
-                VerificationCodeEntity codeByEmail = verificationCodeRepository.findFirstByEmail(newUser.getUserEmail());
+                VerificationCodeEntity codeByEmail = verificationCodeRepo.findFirstByEmail(newUser.getUserEmail());
                 /* Email đã có trong bảng verificationCode thì cập nhật code với hạn mới */
                 if (codeByEmail != null) {
-                    verificationCodeRepository.delete(codeByEmail);
+                    verificationCodeRepo.delete(codeByEmail);
                 }
 
                 /* Tạo mới */
@@ -245,7 +245,7 @@ public class UserAccountServiceImpl implements UserAccountService {
                         code,
                         currentDay
                 );
-                verificationCodeRepository.save(verificationCode);
+                verificationCodeRepo.save(verificationCode);
 
                 /* Tạo mới key */
                 KeyTokenEntity newKey = KeyTokenEntity.create(
@@ -254,7 +254,7 @@ public class UserAccountServiceImpl implements UserAccountService {
                         publicKey,
                         jwtService.generateRefreshToken(userAccountEntity.getUserEmail(), privateKey)
                 );
-                keyRepository.save(newKey);
+                keyRepo.save(newKey);
 
                 return RegisterEnum.SUCCESS;
             }
@@ -263,7 +263,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 
     @Override
     public VerificationEnum verify(String code) {
-        VerificationCodeEntity userCode = verificationCodeRepository.findFirstByVerificationCode(code);
+        VerificationCodeEntity userCode = verificationCodeRepo.findFirstByVerificationCode(code);
 
         if (userCode == null || !Objects.equals(userCode.getVerificationCode(), code))
             return VerificationEnum.FAILED;
@@ -276,7 +276,7 @@ public class UserAccountServiceImpl implements UserAccountService {
         userByEmail.setUserStatus(true);
         userRepository.save(userByEmail);
 
-        verificationCodeRepository.delete(userCode);
+        verificationCodeRepo.delete(userCode);
         return VerificationEnum.SUCCESS;
     }
 
@@ -284,7 +284,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     public void forgetPassword(int userId) {
 
         UserAccountEntity user = userRepository.findFirstByUserId(userId);
-        OtpEntity otp = otpRepository.findFirstByUserId(userId);
+        OtpEntity otp = otpRepo.findFirstByUserId(userId);
         String newOtp = GenerateOtpUtil.create(6);
 
         if (otp == null) {
@@ -295,13 +295,13 @@ public class UserAccountServiceImpl implements UserAccountService {
                     Constants.getCurrentDay(),
                     0
             );
-            otpRepository.save(newOtpEntity);
+            otpRepo.save(newOtpEntity);
         } else {
             otp.setOtpCode(newOtp);
             otp.setOtpExp(Constants.getCurrentDay());
             otp.setOtpFailAttempts(0);
 
-            otpRepository.save(otp);
+            otpRepo.save(otp);
         }
         sendMailService.forgetPasswordUser(user, newOtp);
     }
@@ -312,13 +312,13 @@ public class UserAccountServiceImpl implements UserAccountService {
         if (userByEmail == null)
             return VerificationEnum.NOT_FOUND;
 
-        OtpEntity otpByUserId = otpRepository.findFirstByUserId(userByEmail.getUserId());
+        OtpEntity otpByUserId = otpRepo.findFirstByUserId(userByEmail.getUserId());
         if (otpByUserId.getOtpFailAttempts() >=5 )
             return VerificationEnum.FAIL_ATTEMPT;
         if (Objects.equals(otpByUserId.getOtpCode(), resetPasswordDto.getOtp()) && Objects.equals(userByEmail.getUserEmail(), resetPasswordDto.getEmail())){
             if (isTimeOutRequired(otpByUserId, Constants.OTP_VALID_DURATION_5P)) {
                 otpByUserId.setOtpFailAttempts(otpByUserId.getOtpFailAttempts() + 1);
-                otpRepository.save(otpByUserId);
+                otpRepo.save(otpByUserId);
                 return VerificationEnum.TIME_OUT;
             }
             // cập nhật pass
@@ -326,11 +326,11 @@ public class UserAccountServiceImpl implements UserAccountService {
             userByEmail.setUserUpdatedAt(Constants.getCurrentDay());
             userRepository.save(userByEmail);
             // xoá otp
-            otpRepository.delete(otpByUserId);
+            otpRepo.delete(otpByUserId);
             return VerificationEnum.SUCCESS;
         }
         otpByUserId.setOtpFailAttempts(otpByUserId.getOtpFailAttempts() + 1);
-        otpRepository.save(otpByUserId);
+        otpRepo.save(otpByUserId);
         return VerificationEnum.FAILED;
     }
 }

@@ -7,12 +7,15 @@ import com.example.familytree.models.dto.AuthRequest;
 import com.example.familytree.models.dto.LoginResponse;
 import com.example.familytree.models.dto.TokenResponse;
 import com.example.familytree.models.dto.UserInfo;
-import com.example.familytree.repositories.KeyRepository;
-import com.example.familytree.repositories.UserAccountRepository;
+import com.example.familytree.repositories.KeyRepo;
+import com.example.familytree.repositories.UserAccountRepo;
 import com.example.familytree.security.JwtService;
 import com.example.familytree.services.UserAccountService;
+import com.example.familytree.utils.BearerTokenUtil;
+import com.example.familytree.utils.GenerateKeyUtil;
 import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +38,8 @@ public class AuthController {
     private final UserAccountService userAccountService;
     private final UserDetailsService userDetailsService;
     private final AuthenticationManager authenticationManager;
-    private final UserAccountRepository userAccountRepository;
-    private final KeyRepository keyRepository;
+    private final UserAccountRepo userAccountRepo;
+    private final KeyRepo keyRepo;
 
     @GetMapping(path = "/test")
     // [GET] localhost:8080/admins/list
@@ -58,8 +61,8 @@ public class AuthController {
         username = jsonObject.get("sub").getAsString();
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        UserAccountEntity user = userAccountRepository.findFirstByUserEmail(username);
-        KeyTokenEntity keyByUser = keyRepository.findFirstByUserId(user.getUserId());
+        UserAccountEntity user = userAccountRepo.findFirstByUserEmail(username);
+        KeyTokenEntity keyByUser = keyRepo.findFirstByUserId(user.getUserId());
         try {
             if (jwtService.validateToken(token, keyByUser.getPrivateKey(), userDetails)) {
                 // Tạo lại AccessToken và RefreshToken
@@ -74,7 +77,7 @@ public class AuthController {
                  *
                  * */
                 keyByUser.setRefreshToken(refreshToken);
-                keyRepository.save(keyByUser);
+                keyRepo.save(keyByUser);
 
 
                 result = ApiResult.create(HttpStatus.OK, "Cấp lại AccessToken và RefreshToken thành công!!", tokens);
@@ -87,7 +90,7 @@ public class AuthController {
     }
 
 
-    @PostMapping("/authenticate")
+    @PostMapping("/sign-in")
     public ResponseEntity<ApiResult<LoginResponse>> login(@RequestBody AuthRequest authRequest) {
 
         ApiResult<LoginResponse> result = null;
@@ -95,17 +98,34 @@ public class AuthController {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
 
             if (authentication.isAuthenticated()) {
-                UserAccountEntity user = userAccountRepository.findFirstByUserEmail(authRequest.getEmail());
-                if (user != null && user.getUserStatus() ) {
+                UserAccountEntity user = userAccountRepo.findFirstByUserEmail(authRequest.getEmail());
+                if (user != null && user.getUserStatus()) {
+                    String privateKey = GenerateKeyUtil.generate();
+                    String publicKey = GenerateKeyUtil.generate();
+                    /* Thêm vào bảng key */
+                    // Kiểm tra xem đã tồn tại userID trong bảng Key chưa
+                    KeyTokenEntity keyByUserId = keyRepo.findFirstByUserId(user.getUserId());
+
+                    if (keyByUserId != null) {
+                        keyRepo.delete(keyByUserId);
+                    }
+                    String refreshToken = jwtService.generateRefreshToken(authRequest.getEmail(), privateKey);
+
+                    KeyTokenEntity newKey = KeyTokenEntity.create(
+                            user.getUserId(),
+                            privateKey,
+                            publicKey,
+                            refreshToken
+                    );
+                    keyRepo.save(newKey);
+
                     // lấy key ra
-                    KeyTokenEntity keyByUser = keyRepository.findFirstByUserId(user.getUserId());
+                    KeyTokenEntity keyByUser = keyRepo.findFirstByUserId(user.getUserId());
                     UserInfo userInfo = UserInfo.create(
                             user.getUserId(),
                             user.getUserEmail(),
                             user.getUserFullname()
                     );
-
-                    String refreshToken = jwtService.generateRefreshToken(authRequest.getEmail(), keyByUser.getPrivateKey());
 
                     TokenResponse tokens = TokenResponse.create(
                             jwtService.generateAccessToken(authRequest.getEmail(), keyByUser.getPublicKey()),
@@ -116,16 +136,13 @@ public class AuthController {
                             userInfo,
                             tokens
                     );
-                    result = ApiResult.create(HttpStatus.OK, "Đăng nhập thành công!!", loginResponse);
-                    // Lưu refreshToken vào db
-                    keyByUser.setRefreshToken(refreshToken);
-                    keyRepository.save(keyByUser);
 
+                    result = ApiResult.create(HttpStatus.OK, "Đăng nhập thành công!!", loginResponse);
                     return ResponseEntity.ok(result);
                 }
                 result = ApiResult.create(HttpStatus.OK, "tài khoản chưa được kích hoạt!!", null);
             }
-        } catch (Exception ex){
+        } catch (Exception ex) {
             result = ApiResult.create(HttpStatus.OK, "Sai tên đăng nhập hoặc mật khẩu!!", null);
             return ResponseEntity.ok(result);
         }
@@ -133,4 +150,25 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
+
+    @GetMapping("/sign-out")
+    public ResponseEntity<ApiResult<?>> logout(HttpServletRequest request) {
+        ApiResult<?> result = null;
+        String token = BearerTokenUtil.getToken(request);
+        String username = BearerTokenUtil.getUserName(request);
+
+        if (username != null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            UserAccountEntity user = userAccountRepo.findFirstByUserEmail(username);
+            KeyTokenEntity keyByUser = keyRepo.findFirstByUserId(user.getUserId());
+            if (jwtService.validateToken(token, keyByUser.getPublicKey(), userDetails)) {
+                keyRepo.delete(keyByUser);
+                result = ApiResult.create(HttpStatus.OK, "logout Success!!", username);
+            } else {
+                result = ApiResult.create(HttpStatus.OK, "Token không đúng!!", username);
+            }
+        }
+
+        return ResponseEntity.ok(result);
+    }
 }

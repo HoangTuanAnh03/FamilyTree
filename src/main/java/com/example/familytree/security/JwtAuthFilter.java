@@ -2,8 +2,9 @@ package com.example.familytree.security;
 
 import com.example.familytree.entities.KeyTokenEntity;
 import com.example.familytree.entities.UserAccountEntity;
-import com.example.familytree.repositories.KeyRepository;
-import com.example.familytree.repositories.UserAccountRepository;
+import com.example.familytree.repositories.KeyRepo;
+import com.example.familytree.repositories.UserAccountRepo;
+import com.example.familytree.utils.BearerTokenUtil;
 import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
 import jakarta.servlet.FilterChain;
@@ -28,31 +29,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private JwtService jwtService;
 
     private UserInfoUserDetailsService userDetailsService;
-    private KeyRepository keyRepository;
-    private UserAccountRepository userAccountRepository;
+    private KeyRepo keyRepo;
+    private UserAccountRepo userAccountRepo;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        String token = null;
-        String username = null;
-
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-
-            Base64.Decoder decoder = Base64.getUrlDecoder();
-            String[] chunks = token.split("\\.");
-            String payload = new String(decoder.decode(chunks[1]));
-            JsonObject jsonObject = new JsonParser().parse(payload).getAsJsonObject();
-
-            username = jsonObject.get("sub").getAsString();
-        }
+        String token = BearerTokenUtil.getToken(request);
+        String username = BearerTokenUtil.getUserName(request);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            UserAccountEntity user = userAccountRepository.findFirstByUserEmail(username);
-            KeyTokenEntity keyByUser = keyRepository.findFirstByUserId(user.getUserId());
+            UserAccountEntity user = userAccountRepo.findFirstByUserEmail(username);
+            KeyTokenEntity keyByUser = keyRepo.findFirstByUserId(user.getUserId());
             if (jwtService.validateToken(token,keyByUser.getPublicKey(), userDetails) ) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

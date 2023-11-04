@@ -8,8 +8,8 @@ import com.example.familytree.enums.VerificationEnum;
 import com.example.familytree.models.ApiResult;
 import com.example.familytree.models.dto.ResetPasswordDto;
 import com.example.familytree.models.dto.UserAccountDto;
-import com.example.familytree.repositories.OtpRepository;
-import com.example.familytree.repositories.UserAccountRepository;
+import com.example.familytree.repositories.OtpRepo;
+import com.example.familytree.repositories.UserAccountRepo;
 import com.example.familytree.services.UserAccountService;
 import com.example.familytree.shareds.Constants;
 import jakarta.mail.MessagingException;
@@ -30,8 +30,8 @@ import java.text.MessageFormat;
 public class UserAccountController {
 
     private final UserAccountService userAccountService;
-    private final UserAccountRepository userAccountRepository;
-    private final OtpRepository otpRepository;
+    private final UserAccountRepo userAccountRepo;
+    private final OtpRepo otpRepo;
 
 //    @PutMapping(path = "/edit")
 //    public ResponseEntity<ApiResult<UpdateCustomerDto>> editInfoCustomer(@Valid @RequestBody UpdateCustomerDto updateCustomerDto) {
@@ -60,10 +60,10 @@ public class UserAccountController {
     @PostMapping(path = "/forgetPassword")
     public ResponseEntity<ApiResult<?>> forgetPassword(@Valid @RequestParam(name = "email") String email) {
         ApiResult<?> result = null;
-        UserAccountEntity user = userAccountRepository.findFirstByUserEmail(email);
+        UserAccountEntity user = userAccountRepo.findFirstByUserEmail(email);
         if (user != null) {
             /* Kiểm tra xem Otp có bị giới hạn gửi lại không */
-            OtpEntity otp = otpRepository.findFirstByUserId(user.getUserId());
+            OtpEntity otp = otpRepo.findFirstByUserId(user.getUserId());
             result = ApiResult.create(HttpStatus.OK, "Hãy vào email của bạn để lấy mã OTP", email);
             if (otp == null){
                 userAccountService.forgetPassword(user.getUserId());
