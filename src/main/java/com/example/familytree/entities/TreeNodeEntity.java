@@ -19,23 +19,14 @@ public class TreeNodeEntity {
     @Column(name = "family_tree_id", nullable = true)
     private Integer familyTreeId;
     @Basic
-    @Column(name = "PersonId", nullable = true)
-    private Integer personId;
+    @Column(name = "person_id_center", nullable = true)
+    private Integer personIdCenter;
     @Basic
     @Column(name = "left_node", nullable = true)
     private Integer leftNode;
     @Basic
     @Column(name = "right_node", nullable = true)
     private Integer rightNode;
-    @Basic
-    @Column(name = "person_id_source", nullable = true)
-    private Integer personIdSource;
-    @Basic
-    @Column(name = "person_id_destination", nullable = true)
-    private Integer personIdDestination;
-    @Basic
-    @Column(name = "person_id_center", nullable = true)
-    private Integer personIdCenter;
     @Basic
     @Column(name = "person_id_relate", nullable = true)
     private Integer personIdRelate;

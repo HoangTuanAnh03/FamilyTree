@@ -12,7 +12,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "create")
-@Where(clause = "IsDelete = false")
+@Where(clause = "person_is_deleted = false")
 @Table(name = "Person", schema = "dbo", catalog = "web")
 public class PersonEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,14 +68,8 @@ public class PersonEntity {
     @Column(name = "mother_id", nullable = true)
     private Integer motherId;
     @Basic
-    @Column(name = "next_adjacent_id", nullable = true)
-    private Integer nextAdjacentId;
-    @Basic
-    @Column(name = "previous_adjacent_id", nullable = true)
-    private Integer previousAdjacentId;
-    @Basic
-    @Column(name = "IsDelete", nullable = true)
-    private Boolean isDelete;
+    @Column(name = "person_is_deleted", nullable = true)
+    private Boolean personIsDeleted;
     @Basic
     @Column(name = "person_created_at", nullable = true)
     private Date personCreatedAt;
@@ -86,13 +80,13 @@ public class PersonEntity {
     @Column(name = "person_deleted_at", nullable = true)
     private Date personDeletedAt;
     @Basic
-    @Column(name = "person_image", nullable = true, length = 50)
+    @Column(name = "person_image", nullable = true, length = 2147483647)
     private String personImage;
     @Basic
-    @Column(name = "person_is_delete", nullable = true)
-    private Boolean personIsDelete;
+    @Column(name = "sibling_num", nullable = true, precision = 0)
+    private Double siblingNum;
     @Basic
-    @Column(name = "person_is_deleted", nullable = true)
-    private Boolean personIsDeleted;
+    @Column(name = "group_child_id", nullable = true)
+    private Integer groupChildId;
 
-   }
+}

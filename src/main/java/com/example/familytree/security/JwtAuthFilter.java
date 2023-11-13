@@ -1,5 +1,6 @@
 package com.example.familytree.security;
 
+import com.example.familytree.advice.exceptions.NotFoundException;
 import com.example.familytree.entities.KeyTokenEntity;
 import com.example.familytree.entities.UserAccountEntity;
 import com.example.familytree.repositories.KeyRepo;
@@ -41,7 +42,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             UserAccountEntity user = userAccountRepo.findFirstByUserEmail(username);
             KeyTokenEntity keyByUser = keyRepo.findFirstByUserId(user.getUserId());
-            if (jwtService.validateToken(token,keyByUser.getPublicKey(), userDetails) ) {
+            if (jwtService.validateToken(token, keyByUser.getPublicKey(), userDetails) ) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);

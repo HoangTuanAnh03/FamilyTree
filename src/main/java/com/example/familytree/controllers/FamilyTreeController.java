@@ -43,14 +43,6 @@ public class FamilyTreeController {
         return ResponseEntity.ok(result);
     }
 
-    /* Xoá cây nhiều vấn đề:
-    *   +) Chỉ có người tạo mới xoá được
-    *   +) Ví dụ nghịch lỡ bấm nhầm xoá
-    *   +) Nếu gửi mail xác nhận mới cho xoá có lằng nhằng quá không?
-    *   +) Không xoá thì lại nhiều bản nháp quá
-    *   +) Hoặc có cách là rời khỏi cây đó( xoá userid trong familyTreeUser)
-    *       thì nó sẽ không hiện nữa
-    *  */
 
 //    @DeleteMapping("/delete")
 //    public ResponseEntity<ApiResult<?>> delete(HttpServletRequest request, @RequestParam int id) {

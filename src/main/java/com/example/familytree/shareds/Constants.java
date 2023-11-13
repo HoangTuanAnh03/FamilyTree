@@ -13,6 +13,16 @@ public class Constants {
     public static final String SEARCH_DATA_SUCCESS = "Tìm kiếm dữ liệu từ bảng ''{0}'' thành công ^.^";
     public static final String SEARCH_DATA_EMPTY = "Không tìm thấy dữ liệu phù hợp trong bảng ''{0}''!!! ";
 
+    // Person
+
+    public static final String NOT_FOUND_PERSON = "Person có personId = ''{0}'' không tồn tại!";
+    public static final String NOT_FOUND_FATHER = "Không tồn tại PersonId có giá trị FatherId = ''{0}'' là Nam trong bảng PersonEntity!";
+    public static final String NOT_FOUND_MOTHER = "Không tồn tại PersonId có giá trị MotherId = ''{0}'' là Nữ trong bảng PersonEntity!";
+
+    // Spouse
+    public static final String NOT_FOUND_SPOUSE = "Không tồn tại SpouseEntity có giá trị spouseId = ''{0}'' !";
+    public static final String NOT_FOUND_PARENT_ID = "Không tồn tại SpouseEntity có giá trị ParentId = ''{0}'' trong bảng Spouse!";
+
 
 
 

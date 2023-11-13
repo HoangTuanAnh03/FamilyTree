@@ -4,6 +4,7 @@ import com.example.familytree.entities.FamilyTreeEntity;
 import com.example.familytree.entities.FamilyTreeUserEntity;
 import com.example.familytree.repositories.FamilyTreeRepo;
 import com.example.familytree.services.FamilyTreeService;
+import com.example.familytree.services.FamilyTreeUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,13 +12,24 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class FamilyTreeServiceImpl implements FamilyTreeService {
     private final FamilyTreeRepo familyTreeRepo;
+    private final FamilyTreeUserService familyTreeUserService;
 
     @Override
     public void create(FamilyTreeEntity familyTree) {
         // Lưu cây mới tạo vào db
-        familyTreeRepo.save(familyTree);
+        FamilyTreeEntity newFamilyTree = FamilyTreeEntity.create(
+                0,
+                familyTree.getUserId(),
+                familyTree.getFamilyTreeName()
+        );
+        familyTreeRepo.save(newFamilyTree);
         // Thêm người vừa tạo cây vào bảng FamilyTreeUser
-//        FamilyTreeEntity currentFamilyTree = familyTreeRepo.findFirstByFamilyTreeId(familyTree.getFamilyTreeId());
-
+        FamilyTreeUserEntity newFamilyTreeUser = FamilyTreeUserEntity.create(
+                0,
+                newFamilyTree.getFamilyTreeId(),
+                familyTree.getUserId(),
+                true
+        );
+        familyTreeUserService.create(newFamilyTreeUser);
     }
 }

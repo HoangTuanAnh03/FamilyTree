@@ -1,7 +1,9 @@
 package com.example.familytree.security;
 
+import com.example.familytree.advice.exceptions.NotFoundException;
 import com.example.familytree.shareds.Constants;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -45,13 +47,23 @@ public class JwtService {
                 .getBody();
     }
 
-    private Boolean isTokenExpired(String token,String publicKey) {
+    public Boolean isTokenExpired(String token,String publicKey) {
         return extractExpiration(token, publicKey).before(new Date());
     }
 
     public Boolean validateToken(String token, String publicKey, UserDetails userDetails) {
         final String username = extractUsername(token, publicKey);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token, publicKey));
+//        try {
+//            final String username = extractUsername(token, publicKey);
+//            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token, publicKey));
+//        }
+//        catch (ExpiredJwtException e) {
+//            throw new NotFoundException("Token hết hạn");
+//        }
+//        catch (IllegalArgumentException e){
+//            throw new NotFoundException("Token đối số ngoại lệ");
+//        }
     }
 
 
