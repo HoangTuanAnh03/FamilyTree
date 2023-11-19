@@ -12,42 +12,5 @@ import org.springframework.stereotype.Component;
 public class SpouseServiceImpl implements SpouseService {
     private final SpouseRepo spouseRepo;
 
-    @Override
-    public void createFirstSpouse(PersonEntity person) {
-        SpouseEntity newSpouse = SpouseEntity.create(
-                0,
-                null,
-                null,
-                0
-        );
 
-        if (person.getPersonGender()) {
-            newSpouse.setHusbandId(person.getPersonId());
-        } else {
-            newSpouse.setWifeId(person.getPersonId());
-        }
-        spouseRepo.save(newSpouse);
-    }
-
-    @Override
-    public void createFirstSpouse(SpouseEntity spouse, boolean gender) {
-        SpouseEntity newSpouse = SpouseEntity.create(
-                0,
-                null,
-                null,
-                0
-        );
-
-        if (gender) {
-            newSpouse.setHusbandId(spouse.getHusbandId());
-        } else {
-            newSpouse.setWifeId(spouse.getWifeId());
-        }
-        spouseRepo.save(newSpouse);
-    }
-
-    @Override
-    public void createSpouse(SpouseEntity spouse) {
-        spouseRepo.save(spouse);
-    }
 }

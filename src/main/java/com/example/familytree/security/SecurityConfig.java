@@ -48,7 +48,8 @@ public class SecurityConfig {
 //                )
                 .authorizeHttpRequests((authorize) -> authorize
                                 .requestMatchers("/test").authenticated()
-                                .requestMatchers("/sign-out").authenticated()
+                                .requestMatchers("/person/**").authenticated()
+//                                .requestMatchers("/sign-out").authenticated()
                                 .requestMatchers("/familyTree/**").authenticated()
 //                                .requestMatchers("/familytree-api-docs",
 //                                        "/familytree-documentation",

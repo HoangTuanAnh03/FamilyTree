@@ -8,9 +8,4 @@ import org.springframework.stereotype.Service;
 @Service
 public interface SpouseService {
 
-    void createFirstSpouse(PersonEntity person);
-
-    void createFirstSpouse(SpouseEntity spouse, boolean gender);
-
-    void createSpouse(SpouseEntity spouse);
 }

@@ -13,11 +13,38 @@ public class Constants {
     public static final String SEARCH_DATA_SUCCESS = "Tìm kiếm dữ liệu từ bảng ''{0}'' thành công ^.^";
     public static final String SEARCH_DATA_EMPTY = "Không tìm thấy dữ liệu phù hợp trong bảng ''{0}''!!! ";
 
+    // User
+
+    public static final String USER_DOES_NOT_EXITS_IN_TREE ="User có Id = ''{0}'' không trong cây của Person có Id =''{1}''. Không thể thao tác!";
     // Person
+
+    public static final String GET_INFO_PERSON_SUCCESS = "Lấy thông tin thành công!";
+
+    public static final String UPDATE_PERSON_SUCCESS = "Cập nhật thành công thông tin Person!";
 
     public static final String NOT_FOUND_PERSON = "Person có personId = ''{0}'' không tồn tại!";
     public static final String NOT_FOUND_FATHER = "Không tồn tại PersonId có giá trị FatherId = ''{0}'' là Nam trong bảng PersonEntity!";
     public static final String NOT_FOUND_MOTHER = "Không tồn tại PersonId có giá trị MotherId = ''{0}'' là Nữ trong bảng PersonEntity!";
+    public static final String ADD_PARENTS_SUCCESS = "Thêm thành công Bố hoặc Mẹ!";
+    public static final String ADD_CHILD_SUCCESS = "Thêm thành công Con!";
+
+    public static final String NO_PARENTS = "Person có personId = {0} chưa có bố mẹ. Hãy thêm bố hoặc mẹ để sửa!";
+
+
+    public static final String NOT_ADD_FATHER = "Đã có bố rồi không thể thêm bố nữa!";
+    public static final String NOT_ADD_MOTHER = "Đã có mẹ rồi không thể thêm mẹ nữa!";
+
+    public static final String NOT_EDIT_MOTHER = "Person muốn sửa có giá trị personId = ''{0}'' đã có MotherID = ''{1}'' rồi không thể thay đổi!";
+    public static final String NOT_EDIT_FATHER = "Person muốn sửa có giá trị personId = ''{0}'' đã có FatherID = ''{1}'' rồi không thể thay đổi!";
+
+    public static final String SIBLING_NOT_NULL = "SiblingNum không được để trống!";
+    public static final String RANGE_VALUE_SIBLINGID= "SiblingNum phải là giá trị ''{0}'' + 0.5 hoặc ''{0}'' - 0.5";
+    public static final String SIBLING_NOT_A_CHILD = "Sibling ID không phải con của FatherID và MotherID!";
+
+    public static final String FATHERID_OR_MOTHERID_NOT_NULL = "Phải có một trong 2 trường FatherId hoặc MotherId!";
+
+    public static final String NOT_HUSBAND_AND_WIFE = "Person có Id = ''{0}'' và Id = ''{1}'' không phải là vợ chồng!";
+
 
     // Spouse
     public static final String NOT_FOUND_SPOUSE = "Không tồn tại SpouseEntity có giá trị spouseId = ''{0}'' !";
@@ -63,8 +90,8 @@ public class Constants {
 
     /* JWT */
 
-    public static final long ACCESS_TOKEN_EXP = 5 * 60 * 1000;
-    public static final long REFRESH_TOKEN_EXP = 10 * 60 * 1000;
+    public static final long ACCESS_TOKEN_EXP = 24 * 60 * 60 * 1000; // 1 ngày
+    public static final long REFRESH_TOKEN_EXP = 30L * 24 * 60 * 60 * 1000; // 1 tháng
 
 
 

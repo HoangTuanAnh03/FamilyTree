@@ -13,7 +13,7 @@ import java.util.List;
 public class InfoAddPersonResponse {
     private int personId;
     private String personName;
-    private Boolean personGender;
+    private String personGender;
     private Date personDob;
     private String personJob;
     private String personReligion;

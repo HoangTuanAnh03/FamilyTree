@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Base64;
 
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
@@ -50,7 +50,6 @@ public class AuthController {
     @GetMapping("/verifyRefreshToken")
     public ResponseEntity<ApiResult<TokenResponse>> verifyUser(@RequestParam(name = "token") String token) {
         ApiResult<TokenResponse> result = null;
-
 
         String username = null;
         Base64.Decoder decoder = Base64.getUrlDecoder();
@@ -83,7 +82,7 @@ public class AuthController {
                 result = ApiResult.create(HttpStatus.OK, "Cấp lại AccessToken và RefreshToken thành công!!", tokens);
             }
         } catch (Exception ex) {
-            result = ApiResult.create(HttpStatus.OK, "RefreshToken sai!", null);
+            result = ApiResult.create(HttpStatus.BAD_REQUEST, "RefreshToken sai!", null);
 
         }
         return ResponseEntity.ok(result);
@@ -140,10 +139,10 @@ public class AuthController {
                     result = ApiResult.create(HttpStatus.OK, "Đăng nhập thành công!!", loginResponse);
                     return ResponseEntity.ok(result);
                 }
-                result = ApiResult.create(HttpStatus.OK, "tài khoản chưa được kích hoạt!!", null);
+                result = ApiResult.create(HttpStatus.BAD_REQUEST, "tài khoản chưa được kích hoạt!!", null);
             }
         } catch (Exception ex) {
-            result = ApiResult.create(HttpStatus.OK, "Sai tên đăng nhập hoặc mật khẩu!!", null);
+            result = ApiResult.create(HttpStatus.BAD_REQUEST, "Sai tên đăng nhập hoặc mật khẩu!!", null);
             return ResponseEntity.ok(result);
         }
 
@@ -165,7 +164,7 @@ public class AuthController {
                 keyRepo.delete(keyByUser);
                 result = ApiResult.create(HttpStatus.OK, "logout Success!!", username);
             } else {
-                result = ApiResult.create(HttpStatus.OK, "Token không đúng!!", username);
+                result = ApiResult.create(HttpStatus.BAD_REQUEST, "Token không đúng!!", username);
             }
         }
 

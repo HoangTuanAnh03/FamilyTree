@@ -2,7 +2,9 @@ package com.example.familytree.services.Impls;
 
 import com.example.familytree.entities.PersonEntity;
 import com.example.familytree.entities.SpouseEntity;
+import com.example.familytree.models.ApiResult;
 import com.example.familytree.models.dto.PersonDto;
+import com.example.familytree.models.dto.UpdatePersonDto;
 import com.example.familytree.models.response.InfoAddPersonResponse;
 import com.example.familytree.repositories.PersonRepo;
 import com.example.familytree.repositories.SpouseRepo;
@@ -10,12 +12,14 @@ import com.example.familytree.services.PersonService;
 import com.example.familytree.shareds.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -68,6 +72,7 @@ public class PersonServiceImpl implements PersonService {
 
         InfoAddPersonResponse infoAddPersonResponse = new InfoAddPersonResponse();
         BeanUtils.copyProperties(personById, infoAddPersonResponse);
+        infoAddPersonResponse.setPersonGender(personById.getPersonGender() ? "Nam" : "Nữ");
         infoAddPersonResponse.setWife(wife);
         infoAddPersonResponse.setHusband(husband);
         infoAddPersonResponse.setSibling(sibling);
@@ -107,8 +112,52 @@ public class PersonServiceImpl implements PersonService {
         );
         personRepo.save(newPerson);
     }
+
     @Override
     @Transactional
+    public void updatePerson(UpdatePersonDto newInfo) {
+        PersonEntity currentPerson = personRepo.findFirstByPersonId(newInfo.getPersonId());
+
+        currentPerson.setPersonName(newInfo.getPersonName() == null ? currentPerson.getPersonName() : newInfo.getPersonName());
+        currentPerson.setPersonDob(newInfo.getPersonDob() == null ? currentPerson.getPersonDob() : newInfo.getPersonDob());
+        currentPerson.setPersonJob(newInfo.getPersonJob() == null ? currentPerson.getPersonJob() : newInfo.getPersonJob());
+        currentPerson.setPersonReligion(newInfo.getPersonReligion() == null ? currentPerson.getPersonReligion() : newInfo.getPersonReligion());
+        currentPerson.setPersonDod(newInfo.getPersonDod() == null ? currentPerson.getPersonDod() : newInfo.getPersonDod());
+        currentPerson.setPersonAddress(newInfo.getPersonAddress() == null ? currentPerson.getPersonAddress() : newInfo.getPersonAddress());
+        currentPerson.setPersonStatus(newInfo.getPersonStatus() == null ? currentPerson.getPersonStatus() : newInfo.getPersonStatus());
+        currentPerson.setPersonDescription(newInfo.getPersonDescription() == null ? currentPerson.getPersonDescription() : newInfo.getPersonDescription());
+        currentPerson.setPersonStory(newInfo.getPersonStory() == null ? currentPerson.getPersonStory() : newInfo.getPersonStory());
+        currentPerson.setPersonImage(newInfo.getPersonImage() == null ? currentPerson.getPersonImage() : newInfo.getPersonImage());
+
+        // cập nhật parentid
+        if (newInfo.getMotherId() != null) {
+            SpouseEntity spouseByHusbandAndWife = spouseRepo.findFirstByHusbandIdAndWifeId(currentPerson.getFatherId(), newInfo.getMotherId());
+            currentPerson.setMotherId(newInfo.getMotherId());
+            currentPerson.setParentsId(spouseByHusbandAndWife.getSpouseId());
+        }
+        // else if vì tránh set lại 2 lần
+        else if (newInfo.getFatherId() != null) {
+            SpouseEntity spouseByHusbandAndWife = spouseRepo.findFirstByHusbandIdAndWifeId(newInfo.getFatherId(), currentPerson.getMotherId());
+            currentPerson.setFatherId(newInfo.getFatherId());
+            currentPerson.setParentsId(spouseByHusbandAndWife.getSpouseId());
+        }
+        // thứ tự ace
+        if (newInfo.getSiblingId() != null) {
+            PersonEntity siblingBySiblingId = personRepo.findFirstByPersonId(newInfo.getSiblingId());
+            /* Cập nhật SiblingNum */
+            List<PersonEntity> listSibling = personRepo.findByGroupChildId(siblingBySiblingId.getGroupChildId());
+            for (PersonEntity sibling : listSibling) {
+                if (sibling.getSiblingNum() > newInfo.getSiblingNum()){
+                    sibling.setSiblingNum(sibling.getSiblingNum() + 1);
+                    personRepo.save(sibling);
+                }
+            }
+        }
+        currentPerson.setSiblingNum(newInfo.getSiblingNum() + 0.5);
+        personRepo.save(currentPerson);
+    }
+
+    @Override
     public PersonEntity createFirstPerson(PersonDto personDto) {
         PersonEntity person = PersonEntity.create(
                 0,
@@ -302,6 +351,25 @@ public class PersonServiceImpl implements PersonService {
         return null;
     }
 
+    @Override
+    @Transactional
+    public PersonEntity createSpouse(PersonDto personDto, int personID) {
+        PersonEntity person = personRepo.findFirstByPersonId(personID);
+        // Thêm vào bảng Person
+        PersonEntity newPerson =  createFirstPerson(personDto);
+        // Set lại đời rank
+        newPerson.setPersonRank(person.getPersonRank());
 
+        // Tạo Spouse mới
+        SpouseEntity newSpouse = SpouseEntity.create(
+                0,
+                (person.getPersonGender() ? personID : newPerson.getPersonId()),
+                (person.getPersonGender() ? newPerson.getPersonId() : personID),
+                1
+        );
+        spouseRepo.save(newSpouse);
+        personRepo.save(newPerson);
+        return newPerson;
+    }
 
 }

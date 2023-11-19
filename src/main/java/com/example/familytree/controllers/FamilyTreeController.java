@@ -30,7 +30,7 @@ public class FamilyTreeController {
         UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(email);
 
         if (userByEmail == null || !userByEmail.getUserStatus()) {
-            result = ApiResult.create(HttpStatus.OK, "UserId trong Token không tồn tại hoặc chưa kích hoạt tài khoản!", null);
+            result = ApiResult.create(HttpStatus.BAD_REQUEST, "UserId trong Token không tồn tại hoặc chưa kích hoạt tài khoản!", null);
             return ResponseEntity.ok(result);
         }
         FamilyTreeEntity familyTree = FamilyTreeEntity.create(
