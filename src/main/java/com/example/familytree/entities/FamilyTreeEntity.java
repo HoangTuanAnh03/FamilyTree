@@ -21,6 +21,8 @@ public class FamilyTreeEntity {
     @Basic
     @Column(name = "family_tree_name", nullable = true, length = 500)
     private String familyTreeName;
-
+    @Basic
+    @Column(name = "person_id", nullable = true)
+    private Integer personId;
 
 }

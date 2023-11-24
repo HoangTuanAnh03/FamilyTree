@@ -15,6 +15,7 @@ public class Constants {
 
     // User
 
+    public static final String USER_DOES_NOT_EXITS_IN_TREE_ID = "Trong cây familyTreeId = ''{0}'' không tồn tại UserId = ''{1}''!!";
     public static final String USER_DOES_NOT_EXITS_IN_TREE ="User có Id = ''{0}'' không trong cây của Person có Id =''{1}''. Không thể thao tác!";
     // Person
 

@@ -1,10 +1,7 @@
 package com.example.familytree.controllers;
 
 
-import com.example.familytree.entities.PersonEntity;
-import com.example.familytree.entities.SpouseEntity;
-import com.example.familytree.entities.TreeNodeEntity;
-import com.example.familytree.entities.UserAccountEntity;
+import com.example.familytree.entities.*;
 import com.example.familytree.models.ApiResult;
 import com.example.familytree.models.dto.PersonDto;
 import com.example.familytree.models.dto.UpdatePersonDto;
@@ -30,13 +27,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PersonController {
     private final PersonService personService;
-    private final SpouseService spouseService;
-    private final TreeNodeService treeNodeService;
     private final PersonRepo personRepo;
     private final SpouseRepo spouseRepo;
-    private final TreeNodeRepo treeNodeRepo;
     private final UserAccountRepo userAccountRepo;
     private final FamilyTreeUserRepo familyTreeUserRepo;
+    private final FamilyTreeRepo familyTreeRepo;
 
 
 
@@ -53,7 +48,7 @@ public class PersonController {
         String username = BearerTokenUtil.getUserName(request);
         UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
 
-        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserId(familyTreeIdByPerson, userByEmail.getUserId())) {
+        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(familyTreeIdByPerson, userByEmail.getUserId(), true)) {
             result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE, userByEmail.getUserId(), personId), null);
             return ResponseEntity.ok(result);
         }
@@ -69,7 +64,7 @@ public class PersonController {
         String username = BearerTokenUtil.getUserName(request);
         UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
 
-        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserId(personDto.getFamilyTreeId(), userByEmail.getUserId())) {
+        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(personDto.getFamilyTreeId(), userByEmail.getUserId(), true)) {
             result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE, userByEmail.getUserId()), null);
             return ResponseEntity.ok(result);
         }
@@ -82,6 +77,10 @@ public class PersonController {
 
         // Thêm vào bảng Person
         PersonEntity newPerson = personService.createFirstPerson(personDto);
+        // Thêm personID đầu tiên trong cây vào bảng familyTree
+        FamilyTreeEntity familyTree = familyTreeRepo.findFirstByFamilyTreeId(personDto.getFamilyTreeId());
+        familyTree.setPersonId(newPerson.getPersonId());
+        familyTreeRepo.save(familyTree);
         // Thêm vào bảng Spouse
         SpouseEntity spouseByParent = SpouseEntity.create(
                 0,
@@ -93,7 +92,7 @@ public class PersonController {
         result = ApiResult.create(
                 HttpStatus.OK,
                 "Tạo người Preson đầu tiên trong cây thành công!",
-                personDto
+                newPerson
         );
         return ResponseEntity.ok(result);
     }
@@ -105,7 +104,7 @@ public class PersonController {
         String username = BearerTokenUtil.getUserName(request);
         UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
 
-        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserId(personDto.getFamilyTreeId(), userByEmail.getUserId())) {
+        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(personDto.getFamilyTreeId(), userByEmail.getUserId(), true)) {
             result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE, userByEmail.getUserId(), personId), null);
             return ResponseEntity.ok(result);
         }
@@ -135,7 +134,7 @@ public class PersonController {
         String username = BearerTokenUtil.getUserName(request);
         UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
 
-        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserId(childrenDto.getFamilyTreeId(), userByEmail.getUserId())) {
+        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(childrenDto.getFamilyTreeId(), userByEmail.getUserId(), true)) {
             result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE, userByEmail.getUserId(), siblingId), null);
             return ResponseEntity.ok(result);
         }
@@ -217,7 +216,7 @@ public class PersonController {
         String username = BearerTokenUtil.getUserName(request);
         UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
 
-        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserId(personDto.getFamilyTreeId(), userByEmail.getUserId())) {
+        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(personDto.getFamilyTreeId(), userByEmail.getUserId(), true)) {
             result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE, userByEmail.getUserId(), personId), null);
             return ResponseEntity.ok(result);
         }
@@ -252,7 +251,7 @@ public class PersonController {
         String username = BearerTokenUtil.getUserName(request);
         UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
 
-        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserId(personById.getFamilyTreeId(), userByEmail.getUserId())) {
+        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(personById.getFamilyTreeId(), userByEmail.getUserId(), true)) {
             result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE, userByEmail.getUserId(), newPerson.getPersonId()), null);
             return ResponseEntity.ok(result);
         }
@@ -337,7 +336,7 @@ public class PersonController {
         String username = BearerTokenUtil.getUserName(request);
         UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
 
-        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserId(familyTreeIdByPerson, userByEmail.getUserId())) {
+        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(familyTreeIdByPerson, userByEmail.getUserId(), true)) {
             result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE, userByEmail.getUserId(), personId), null);
             return ResponseEntity.ok(result);
         }

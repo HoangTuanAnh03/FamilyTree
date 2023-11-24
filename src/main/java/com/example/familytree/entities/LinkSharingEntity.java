@@ -21,9 +21,6 @@ public class LinkSharingEntity {
     @Column(name = "link", nullable = false, length = 2147483647)
     private String link;
     @Basic
-    @Column(name = "role", nullable = true, length = 2147483647)
-    private String role;
-    @Basic
     @Column(name = "person_id", nullable = false)
     private int personId;
     @Basic
@@ -35,5 +32,4 @@ public class LinkSharingEntity {
     @Basic
     @Column(name = "exp", nullable = false)
     private Date exp;
-
 }

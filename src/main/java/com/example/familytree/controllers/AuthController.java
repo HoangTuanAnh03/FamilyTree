@@ -83,7 +83,6 @@ public class AuthController {
             }
         } catch (Exception ex) {
             result = ApiResult.create(HttpStatus.BAD_REQUEST, "RefreshToken sai!", null);
-
         }
         return ResponseEntity.ok(result);
     }

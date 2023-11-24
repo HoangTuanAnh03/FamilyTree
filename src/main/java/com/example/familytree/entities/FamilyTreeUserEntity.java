@@ -24,4 +24,11 @@ public class FamilyTreeUserEntity {
     @Basic
     @Column(name = "user_tree_status", nullable = true)
     private Boolean userTreeStatus;
+    @Basic
+    @Column(name = "role_id", nullable = true)
+    private Integer roleId;
+    @Basic
+    @Column(name = "person_id", nullable = true)
+    private Integer personId;
+
 }

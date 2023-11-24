@@ -15,19 +15,19 @@ import org.springframework.stereotype.Component;
 public class FamilyTreeUserServiceImpl implements FamilyTreeUserService {
     private final FamilyTreeUserRepo familyTreeUserRepo;
 
-    @Override
-    public void create(FamilyTreeUserEntity familyTreeUserEntity) {
-        int familyTreeId = familyTreeUserEntity.getFamilyTreeId();
-        int userId = familyTreeUserEntity.getUserId();
-        if (familyTreeUserRepo.existsByFamilyTreeIdAndUserId(familyTreeId, userId))
-            throw new DuplicateRecordException("User muốn thêm đã ở trong cây rồi");
-
-        FamilyTreeUserEntity newUser = FamilyTreeUserEntity.create(
-                0,
-                familyTreeId,
-                userId,
-                familyTreeUserEntity.getUserTreeStatus()
-        );
-        familyTreeUserRepo.save(newUser);
-    }
+//    @Override
+//    public void create(FamilyTreeUserEntity familyTreeUserEntity) {
+//        int familyTreeId = familyTreeUserEntity.getFamilyTreeId();
+//        int userId = familyTreeUserEntity.getUserId();
+//        if (familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(familyTreeId, userId))
+//            throw new DuplicateRecordException("User muốn thêm đã ở trong cây rồi");
+//
+//        FamilyTreeUserEntity newUser = FamilyTreeUserEntity.create(
+//                0,
+//                familyTreeId,
+//                userId,
+//                familyTreeUserEntity.getUserTreeStatus()
+//        );
+//        familyTreeUserRepo.save(newUser);
+//    }
 }
