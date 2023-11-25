@@ -17,7 +17,6 @@ public interface SpouseRepo extends JpaRepository<SpouseEntity, Integer> {
 
     SpouseEntity findFirstBySpouseId(int spouseId);
     SpouseEntity findFirstByHusbandIdAndWifeId(Integer husbandId, Integer wifeId);
-
     boolean existsByHusbandIdAndWifeId(int husbandId, int wifeId);
 
 }
