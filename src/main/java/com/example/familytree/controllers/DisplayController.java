@@ -2,7 +2,9 @@ package com.example.familytree.controllers;
 
 import com.example.familytree.entities.PersonEntity;
 import com.example.familytree.entities.SpouseEntity;
+import com.example.familytree.models.response.PersonDataV2;
 import com.example.familytree.models.response.PersonInfoDisplay;
+import com.example.familytree.models.response.PersonInfoSimplifiedInfoDis;
 import com.example.familytree.repositories.PersonRepo;
 import com.example.familytree.repositories.SpouseRepo;
 import com.example.familytree.utils.GetPersonByCenter;
@@ -21,8 +23,8 @@ public class DisplayController {
     private final PersonRepo personRepo;
     private final SpouseRepo spouseRepo;
     @GetMapping(path = "/test2")
-    ArrayList<PersonInfoDisplay> a(@RequestParam int ft,
-                                   @RequestParam int pid){
+    ArrayList<PersonInfoSimplifiedInfoDis> a(@RequestParam int ft,
+                                             @RequestParam int pid){
         //ft: familytreeid
         //pid: personid
         //CHECK person có trong cây ko
@@ -44,8 +46,8 @@ public class DisplayController {
         set.addAll(listSpouse);
         listSpouse.clear();
         listSpouse.addAll(set);
-        return GetPersonByCenter.GetPersonByCenterDis(ft, pid, listSpouse, listPerson);
-
+        //return GetPersonByCenter.GetPersonByCenterDis(ft, pid, listSpouse, listPerson); //Đầy đủ thông tin ArrayList<PersonInfoDisplay>
+        return GetPersonByCenter.getPersonSimplified(ft, pid, listSpouse, listPerson); //Giản lược ArrayList<PersonInfoSimplifiedInfoDis>
     }
     @GetMapping("/test3")
     Map<String, ArrayList<String>> b(){
@@ -56,5 +58,26 @@ public class DisplayController {
         s.add("123123");
         z.put("1", s);
         return z;
+    }
+    @GetMapping("/test4")
+    Map<Integer, PersonDataV2> c(@RequestParam int ft, @RequestParam int pid){
+        ArrayList<PersonEntity> list =  new ArrayList<>(personRepo.findByFamilyTreeId(ft));
+        ArrayList<PersonEntity> listPerson = new ArrayList<>();
+        for(PersonEntity p : list){
+            if(!p.getPersonIsDeleted()){ //chua xoa
+                listPerson.add(p);
+            }
+        }
+        ArrayList<SpouseEntity> listSpouse = new ArrayList<>();
+        for (PersonEntity p: listPerson) {
+            int personId = p.getPersonId();
+            listSpouse.addAll(spouseRepo.findByHusbandId(personId));
+            listSpouse.addAll(spouseRepo.findByWifeId(personId));
+        }
+        Set<SpouseEntity> set = new LinkedHashSet<>();
+        set.addAll(listSpouse);
+        listSpouse.clear();
+        listSpouse.addAll(set);
+        return GetPersonByCenter.getDataV2(ft, pid, listSpouse, listPerson);
     }
 }

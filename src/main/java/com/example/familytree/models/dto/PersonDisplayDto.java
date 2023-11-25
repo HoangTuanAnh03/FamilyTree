@@ -28,5 +28,4 @@ public class PersonDisplayDto {
     private String personImage;
     private Double siblingNum;
     private Integer groupChildId;
-
 }
