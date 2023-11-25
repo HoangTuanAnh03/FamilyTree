@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.MessageFormat;
@@ -348,6 +349,63 @@ public class PersonController {
 
 
         result = ApiResult.create(HttpStatus.OK, "Xoá thành công Person", null);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping(path = "/getChild")
+    public ResponseEntity<ApiResult<?>> getChildByFatherAndMother(@RequestParam(required = false, defaultValue = "0") int fatherId, @RequestParam(required = false, defaultValue = "0") int motherId, HttpServletRequest request) {
+        ApiResult<?> result = null;
+
+        String username = BearerTokenUtil.getUserName(request);
+        UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
+
+        // phải có 1 trong 2 fatherId hoặc motherId
+        if(fatherId == 0 && motherId == 0) {
+            result = ApiResult.create(HttpStatus.BAD_REQUEST, Constants.FATHERID_OR_MOTHERID_NOT_NULL, null);
+            return ResponseEntity.ok(result);
+        }
+        // ktra có trong person iD k và giới tính
+        if (fatherId != 0) {
+            PersonEntity father = personRepo.findFirstByPersonId(fatherId);
+            if (father == null) {
+                result = ApiResult.create(HttpStatus.NOT_FOUND, MessageFormat.format(Constants.NOT_FOUND_PERSON, fatherId), null);
+                return ResponseEntity.ok(result);
+            }
+            if (!father.getPersonGender()) {
+                result = ApiResult.create(HttpStatus.BAD_REQUEST, "FatherID thì phải có giới tính là Nam", null);
+                return ResponseEntity.ok(result);
+            }
+            // Ktra xem User có trong cây này k
+            if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(father.getFamilyTreeId(), userByEmail.getUserId(), true)) {
+                result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE_ID, father.getFamilyTreeId(), userByEmail.getUserId()), null);
+                return ResponseEntity.ok(result);
+            }
+        }
+        if (motherId != 0) {
+            PersonEntity mother = personRepo.findFirstByPersonId(motherId);
+            if (mother == null) {
+                result = ApiResult.create(HttpStatus.NOT_FOUND, MessageFormat.format(Constants.NOT_FOUND_PERSON, motherId), null);
+                return ResponseEntity.ok(result);
+            }
+            if (mother.getPersonGender()) {
+                result = ApiResult.create(HttpStatus.BAD_REQUEST, "MotherId thì phải có giới tính là Nữ", null);
+                return ResponseEntity.ok(result);
+            }
+            // Ktra xem User có trong cây này k
+            if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(mother.getFamilyTreeId(), userByEmail.getUserId(), true)) {
+                result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE_ID, mother.getFamilyTreeId(), userByEmail.getUserId()), null);
+                return ResponseEntity.ok(result);
+            }
+        }
+
+        // ktra nếu có đủ fatherId và motherId thì có là vợ chồng k
+        if (fatherId != 0 && motherId != 0 && !spouseRepo.existsByHusbandIdAndWifeId(fatherId, motherId)) {
+            result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.NOT_HUSBAND_AND_WIFE, fatherId, motherId), null);
+            return ResponseEntity.ok(result);
+        }
+
+        // Service
+        result = ApiResult.create(HttpStatus.OK, "Lấy thành công danh sách con!", personService.getListChild(fatherId, motherId));
         return ResponseEntity.ok(result);
     }
 }

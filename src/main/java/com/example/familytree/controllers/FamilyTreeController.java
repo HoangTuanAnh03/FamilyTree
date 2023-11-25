@@ -2,27 +2,22 @@ package com.example.familytree.controllers;
 
 import com.example.familytree.entities.FamilyTreeEntity;
 import com.example.familytree.entities.FamilyTreeUserEntity;
-import com.example.familytree.entities.PersonEntity;
 import com.example.familytree.entities.UserAccountEntity;
 import com.example.familytree.models.ApiResult;
-import com.example.familytree.models.dto.UserInfo;
-import com.example.familytree.models.response.ListTreeResponse;
 import com.example.familytree.repositories.FamilyTreeRepo;
 import com.example.familytree.repositories.FamilyTreeUserRepo;
+import com.example.familytree.repositories.PersonRepo;
 import com.example.familytree.repositories.UserAccountRepo;
 import com.example.familytree.services.FamilyTreeService;
 import com.example.familytree.shareds.Constants;
 import com.example.familytree.utils.BearerTokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping(path = "/familyTree")
@@ -86,7 +81,7 @@ public class FamilyTreeController {
         UserAccountEntity userByToken = userAccountRepo.findFirstByUserEmail(email);
         // Cây có tồn tại
         if (!familyTreeRepo.existsByFamilyTreeId(familyTreeId)) {
-            result = ApiResult.create(HttpStatus.BAD_REQUEST, "Không tồn tại cây!", null);
+            result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.NOT_FOUND_FAMILY_TREE, familyTreeId), null);
             return ResponseEntity.ok(result);
         }
 
@@ -100,8 +95,8 @@ public class FamilyTreeController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping(path = "/role")
-    public ResponseEntity<ApiResult<?>> upRole(@RequestParam int familyTreeId, @RequestParam int userId, @RequestParam String action, HttpServletRequest request){
+    @PostMapping(path = "/actionUser")
+    public ResponseEntity<ApiResult<?>> actionUser(@RequestParam int familyTreeId, @RequestParam int userId, @RequestParam String action, HttpServletRequest request){
         ApiResult<?> result = null;
 
         String email = BearerTokenUtil.getUserName(request);
@@ -110,6 +105,11 @@ public class FamilyTreeController {
         // userBytoken có tồn tại trong cây không
         if (familyTreeUserByToken == null) {
             result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE_ID, familyTreeId, userByToken.getUserId()), null);
+            return ResponseEntity.ok(result);
+        }
+
+        if (!familyTreeRepo.existsByFamilyTreeId(familyTreeId)) {
+            result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.NOT_FOUND_FAMILY_TREE, familyTreeId), null);
             return ResponseEntity.ok(result);
         }
 
@@ -169,10 +169,29 @@ public class FamilyTreeController {
                 result = ApiResult.create(HttpStatus.OK, "Xoá thành công User ra khỏi cây!", familyTreeUser);
                 return ResponseEntity.ok(result);
             }
+            case "accept" -> {
+                // Chỉ có Role = 2 và 3 mới được accept
+                if (familyTreeUserByToken.getRoleId() == 1) {
+                    result = ApiResult.create(HttpStatus.BAD_REQUEST, "Bạn là chỉ là thành viên không có quyền accept!", null);
+                    return ResponseEntity.ok(result);
+                }
+                familyTreeUser.setUserTreeStatus(true);
+                familyTreeUserRepo.save(familyTreeUser);
+                result = ApiResult.create(HttpStatus.OK, "Cho phép user tham gia sơ đồ thành công!", familyTreeUser);
+                return ResponseEntity.ok(result);
+            }
             default -> {
                 result = ApiResult.create(HttpStatus.BAD_REQUEST, "Action không hợp lệ!", null);
                 return ResponseEntity.ok(result);
             }
         }
     }
+
+    @PostMapping(path = "/copy")
+    public ResponseEntity<ApiResult<?>> copy(@RequestParam int familyTreeId, @RequestParam int personId, @RequestParam String action, HttpServletRequest request){
+        ApiResult<?> result = null;
+
+        return ResponseEntity.ok(result);
+    }
+
 }

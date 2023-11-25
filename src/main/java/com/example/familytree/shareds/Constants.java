@@ -13,9 +13,16 @@ public class Constants {
     public static final String SEARCH_DATA_SUCCESS = "Tìm kiếm dữ liệu từ bảng ''{0}'' thành công ^.^";
     public static final String SEARCH_DATA_EMPTY = "Không tìm thấy dữ liệu phù hợp trong bảng ''{0}''!!! ";
 
+    // Tree
+    public static final String NOT_FOUND_FAMILY_TREE = "FamilyTree có familyTreeId = ''{0}'' không tồn tại!";
+
+
+
     // User
 
     public static final String USER_DOES_NOT_EXITS_IN_TREE_ID = "Trong cây familyTreeId = ''{0}'' không tồn tại UserId = ''{1}''!!";
+    public static final String PERSON_DOES_NOT_EXITS_IN_TREE_ID = "Trong cây FamilyTreeId = ''{0}'' không tồn tại PersonID = ''{1}''!!";
+
     public static final String USER_DOES_NOT_EXITS_IN_TREE ="User có Id = ''{0}'' không trong cây của Person có Id =''{1}''. Không thể thao tác!";
     // Person
 
@@ -85,9 +92,12 @@ public class Constants {
     public static final long OTP_VALID_DURATION_1P = 60 * 1000;
     public static final long OTP_VALID_DURATION_5P = 5 * 60 * 1000;
 
+    public static final long LINK_SHARING_DURATION = 10 * 24 * 60 * 60 * 1000; // 10 day
+
     public static final long VERIFICATION_CODE_DURATION = 5 * 60 * 1000;
 
     public static final String URL_VERIFICATION_CUSTOMER = "http://localhost:8080/users/register/verify?code=";
+    public static final String URL_LINK_SHARING = "http://localhost:8080/linkSharing?code=";
 
     /* JWT */
 

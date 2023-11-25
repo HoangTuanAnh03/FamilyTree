@@ -22,4 +22,6 @@ public interface PersonRepo extends JpaRepository<PersonEntity, Integer> {
     boolean existsByFamilyTreeId(int treeId);
     boolean existsByPersonId(int personId);
     boolean existsByPersonIdAndPersonGender(int personId, boolean gender);
+    boolean existsByFamilyTreeIdAndPersonId(int familyTreeID, int personId);
+
 }

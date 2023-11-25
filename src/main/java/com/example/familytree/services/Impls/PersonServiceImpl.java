@@ -19,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -79,6 +81,27 @@ public class PersonServiceImpl implements PersonService {
         infoAddPersonResponse.setChildren(children);
 
         return infoAddPersonResponse;
+    }
+
+    @Override
+    public List<PersonEntity> getListChild(int fatherId, int motherId) {
+
+        if (fatherId != 0 && motherId == 0) {
+            return personRepo.findByFatherId(fatherId);
+        }
+        if (fatherId == 0 && motherId != 0) {
+            return personRepo.findByMotherId(motherId);
+        }
+        List<PersonEntity> listByFatherId = personRepo.findByFatherId(fatherId);
+        List<PersonEntity> listByMotherId = personRepo.findByMotherId(motherId);
+        List<PersonEntity> listByFatherIdAndMotherId = personRepo.findByFatherIdAndMotherId(fatherId, motherId);
+
+        // Thêm các phần tử vào listByFatherId, listByMotherId, và listByFatherIdAndMotherId
+        Set<PersonEntity> resultSet = new HashSet<>(listByFatherId);
+        resultSet.addAll(listByMotherId);
+        resultSet.addAll(listByFatherIdAndMotherId);
+
+        return new ArrayList<>(resultSet);
     }
 
     @Override

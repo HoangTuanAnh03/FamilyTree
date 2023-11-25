@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LinkSharingRepo extends JpaRepository<LinkSharingEntity, Integer> {
     LinkSharingEntity findFirstByLink (String link);
+
+
 }

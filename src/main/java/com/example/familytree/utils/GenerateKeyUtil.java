@@ -22,5 +22,4 @@ public class GenerateKeyUtil {
             }
             return sb.toString();
         }
-
 }

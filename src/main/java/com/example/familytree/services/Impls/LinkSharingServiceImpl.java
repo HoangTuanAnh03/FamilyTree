@@ -1,27 +1,38 @@
 package com.example.familytree.services.Impls;
 
-import com.example.familytree.entities.FamilyTreeEntity;
-import com.example.familytree.entities.FamilyTreeUserEntity;
-import com.example.familytree.entities.UserAccountEntity;
-import com.example.familytree.models.dto.UserInfo;
-import com.example.familytree.models.response.InfoUser;
-import com.example.familytree.models.response.ListTreeResponse;
-import com.example.familytree.repositories.FamilyTreeRepo;
-import com.example.familytree.repositories.FamilyTreeUserRepo;
-import com.example.familytree.repositories.UserAccountRepo;
-import com.example.familytree.services.FamilyTreeService;
-import com.example.familytree.services.FamilyTreeUserService;
+import com.example.familytree.entities.*;
+import com.example.familytree.repositories.LinkSharingRepo;
 import com.example.familytree.services.LinkSharingService;
+import com.example.familytree.shareds.Constants;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class LinkSharingServiceImpl implements LinkSharingService {
+    private final LinkSharingRepo linkSharingRepo;
 
+    @Override
+    public String createLink(int familyTreeId, int personId, int userId) {
+        String code = RandomStringUtils.randomAlphanumeric(64);
+        LinkSharingEntity newLink = LinkSharingEntity.create(
+                0,
+                code,
+                personId,
+                userId,
+                familyTreeId,
+                Constants.getCurrentDay()
+        );
+        linkSharingRepo.save(newLink);
+        return Constants.URL_LINK_SHARING + code;
+    }
 
+    @Override
+    public boolean isTimeOutRequired(LinkSharingEntity linkSharing, long ms) {
+        long currentTimeInMillis = System.currentTimeMillis();
+        long otpRequestedTimeInMillis = linkSharing.getExp().getTime();
+
+        return otpRequestedTimeInMillis + ms <= currentTimeInMillis;
+    }
 }

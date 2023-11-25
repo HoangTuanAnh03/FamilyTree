@@ -6,6 +6,8 @@ import com.example.familytree.models.dto.UpdatePersonDto;
 import com.example.familytree.models.response.InfoAddPersonResponse;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public interface PersonService {
     PersonEntity createFirstPerson(PersonDto personDto);
@@ -17,6 +19,8 @@ public interface PersonService {
 
 
     InfoAddPersonResponse getInfoPerson(int personId);
+
+    List<PersonEntity> getListChild(int fatherId, int motherId);
     void createPerson(PersonDto personDto);
 
     void updatePerson(UpdatePersonDto updatePersonDto);
