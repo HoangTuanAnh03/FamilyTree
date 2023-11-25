@@ -138,7 +138,7 @@ public class GetPersonByCenter {
 //                        personSpouse = personRepo.findFirstByPersonId(se.getWifeId());
 //                        break;
 //                    }
-//                }
+//                }//
 //                else{
 //                    if(personInTheMainTree.contains(se.getHusbandId())){
 //                        personSpouse = personRepo.findFirstByPersonId(se.getHusbandId());

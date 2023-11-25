@@ -19,6 +19,7 @@ public class PersonInfoDisplay {
     Integer groupId;
     String side;
     int rank;
+
     int isFatherSide; //0: tôi, 1: họ nội, 2: họ ngoại
     String vocative; //xưng hô
 }

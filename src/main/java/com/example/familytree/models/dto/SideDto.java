@@ -12,4 +12,5 @@ import lombok.Setter;
 public class SideDto {
     String side;
     Integer personId;
+
 }

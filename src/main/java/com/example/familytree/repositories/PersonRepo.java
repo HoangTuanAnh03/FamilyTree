@@ -20,6 +20,7 @@ public interface PersonRepo extends JpaRepository<PersonEntity, Integer> {
     List<PersonEntity> findByGroupChildId(int groupChildId);
 
 
+
     boolean existsByFamilyTreeId(int treeId);
     boolean existsByPersonId(int personId);
     boolean existsByPersonIdAndPersonGender(int personId, boolean gender);

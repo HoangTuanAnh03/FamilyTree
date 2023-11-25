@@ -45,6 +45,7 @@ public class DisplayController {
         listSpouse.clear();
         listSpouse.addAll(set);
         return GetPersonByCenter.GetPersonByCenterDis(ft, pid, listSpouse, listPerson);
+
     }
     @GetMapping("/test3")
     Map<String, ArrayList<String>> b(){
