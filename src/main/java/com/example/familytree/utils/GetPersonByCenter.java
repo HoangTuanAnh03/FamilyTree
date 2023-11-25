@@ -22,22 +22,34 @@ import java.util.*;
 public class GetPersonByCenter {
     private final PersonRepo personRepo;
     private final SpouseRepo spouseRepo;
-    public static int getParentIdByPersonId(int personId, ArrayList<PersonEntity> listPerson){
-        for(int i = 0; i < listPerson.size(); i++){
-            if(listPerson.get(i).getPersonId() == personId){
-                if(listPerson.get(i).getParentsId()==null) return 0;
+
+    public static int getParentIdByPersonId(int personId, ArrayList<PersonEntity> listPerson) {
+        for (int i = 0; i < listPerson.size(); i++) {
+            if (listPerson.get(i).getPersonId() == personId) {
+                if (listPerson.get(i).getParentsId() == null) return 0;
                 return listPerson.get(i).getParentsId();
             }
         }
         return 0;
     }
-    public static int getFatherIdByPersonId(int personId, ArrayList<PersonEntity> listPerson){
-        for(int i = 0; i < listPerson.size(); i++){
-            if(listPerson.get(i).getPersonId() == personId){
-                if(listPerson.get(i).getFatherId() == null) return 0;
+    public static PersonEntity findByPersonId(Integer personId, ArrayList<PersonEntity> personEntities){
+        if(personId == null){
+            return null;
+        }
+        for(PersonEntity p : personEntities){
+            if(p.getPersonId() == personId){
+                return p;
+            }
+        }
+        return null;
+    }
+    public static int getFatherIdByPersonId(int personId, ArrayList<PersonEntity> listPerson) {
+        for (int i = 0; i < listPerson.size(); i++) {
+            if (listPerson.get(i).getPersonId() == personId) {
+                if (listPerson.get(i).getFatherId() == null) return 0;
                 int fid = listPerson.get(i).getFatherId();
                 PersonEntity father = listPerson.stream().filter(p -> p.getPersonId() == fid).findFirst().orElse(null);
-                if(father == null){
+                if (father == null) {
                     return 0;
                 }
                 return listPerson.get(i).getFatherId();
@@ -45,13 +57,14 @@ public class GetPersonByCenter {
         }
         return 0;
     }
-    public static int getMotherIdByPersonId(int personId, ArrayList<PersonEntity> listPerson){
-        for(int i = 0; i < listPerson.size(); i++){
-            if(listPerson.get(i).getPersonId() == personId){
-                if(listPerson.get(i).getMotherId() == null) return 0;
+
+    public static int getMotherIdByPersonId(int personId, ArrayList<PersonEntity> listPerson) {
+        for (int i = 0; i < listPerson.size(); i++) {
+            if (listPerson.get(i).getPersonId() == personId) {
+                if (listPerson.get(i).getMotherId() == null) return 0;
                 int mid = listPerson.get(i).getMotherId();
                 PersonEntity mother = listPerson.stream().filter(p -> p.getPersonId() == mid).findFirst().orElse(null);
-                if(mother == null){
+                if (mother == null) {
                     return 0;
                 }
                 return listPerson.get(i).getMotherId();
@@ -59,52 +72,52 @@ public class GetPersonByCenter {
         }
         return 0;
     }
-    public static String getGenderByPersonId(int personId, ArrayList<PersonEntity> listPerson){
-        for(int i = 0; i < listPerson.size(); i++){
-            if(listPerson.get(i).getPersonId() == personId){
-                if(listPerson.get(i).getPersonGender()){
+
+    public static String getGenderByPersonId(int personId, ArrayList<PersonEntity> listPerson) {
+        for (int i = 0; i < listPerson.size(); i++) {
+            if (listPerson.get(i).getPersonId() == personId) {
+                if (listPerson.get(i).getPersonGender()) {
                     return "Male";
-                }
-                else{
+                } else {
                     return "Female";
                 }
             }
         }
         return null;
     }
+
     public static void getTheMainTree(ArrayList<Integer> personIdInTheMainTree,
                                       int personId, ArrayList<PersonEntity> listPerson,
                                       ArrayList<SideDto> personWithSide,
                                       String side,
                                       int isFatherSide,
-                                      Map<Integer, Integer> fatherSide){
+                                      Map<Integer, Integer> fatherSide,
+                                      Map<Integer, Boolean> intestine) {
         fatherSide.put(personId, isFatherSide);
         int motherId = getMotherIdByPersonId(personId, listPerson);
         int fatherId = getFatherIdByPersonId(personId, listPerson);
-        System.out.println(personId + "  " + motherId + "  " + fatherId + "  ");
-
+        intestine.putIfAbsent(personId, Boolean.TRUE);
         personIdInTheMainTree.add(personId);
         personWithSide.add(SideDto.create(side, personId));
-        if(motherId != 0){
+        if (motherId != 0) {
             String mo = side + "1";
-            if(isFatherSide == 0){
-                getTheMainTree(personIdInTheMainTree, motherId, listPerson, personWithSide, mo, 2, fatherSide);
-            }
-            else{
-                getTheMainTree(personIdInTheMainTree, motherId, listPerson, personWithSide, mo, isFatherSide, fatherSide);
+            if (isFatherSide == 0) {
+                getTheMainTree(personIdInTheMainTree, motherId, listPerson, personWithSide, mo, 2, fatherSide, intestine);
+            } else {
+                getTheMainTree(personIdInTheMainTree, motherId, listPerson, personWithSide, mo, isFatherSide, fatherSide, intestine);
             }
         }
-        if(fatherId != 0){
+        if (fatherId != 0) {
             String fa = side + "0";
-            if(isFatherSide == 0){
-                getTheMainTree(personIdInTheMainTree, fatherId, listPerson, personWithSide, fa, 1, fatherSide);
-            }
-            else{
-                getTheMainTree(personIdInTheMainTree, fatherId, listPerson, personWithSide, fa, isFatherSide, fatherSide);
+            if (isFatherSide == 0) {
+                getTheMainTree(personIdInTheMainTree, fatherId, listPerson, personWithSide, fa, 1, fatherSide, intestine);
+            } else {
+                getTheMainTree(personIdInTheMainTree, fatherId, listPerson, personWithSide, fa, isFatherSide, fatherSide, intestine);
             }
         }
     }
-    public static String getVocative(PersonEntity personInCenter, PersonEntity person2, ArrayList<Integer> personInTheMainTree){
+
+    public static String getVocative(PersonEntity personInCenter, PersonEntity person2, ArrayList<Integer> personInTheMainTree) {
         return "";
     }
     //    public static int largerThan(PersonEntity person1, PersonEntity person2){
@@ -123,58 +136,42 @@ public class GetPersonByCenter {
 //            return 199;
 //        }
 //    }
-//    public static int isLarger(PersonEntity personInCenter, PersonEntity person2, ArrayList<Integer> personInTheMainTree){
+//    public static int isLarger(PersonEntity personInCenter, PersonEntity person2, ArrayList<Integer> personWithCenter, Map<Integer, Integer> fatherSide){
 //        int rank1 = personInCenter.getPersonRank();
 //        int rank2 = person2.getPersonRank();
-//        int rankTemp;
-//        PersonEntity personSpouse;
-//        if(!personInTheMainTree.contains(person2.getFatherId()) && !personInTheMainTree.contains(person2.getMotherId())){
-//            ArrayList<SpouseEntity> s;
-//            if(!person2.getPersonGender()) {
-//                s = new ArrayList<SpouseEntity>(spouseRepo.findByHusbandId(person2.getPersonId()));
+//        if(rank2 < rank1){ // person2 đi lên
+//
+//        }
+//        else if(rank2 > rank1){ //person 1 đi lên
+//
+//        }
+//        else{ //cả 2 cùng đi
+//            if(personInCenter == person2){
+//                return 0;
 //            }
-//            else{
-//                s = new ArrayList<SpouseEntity>(spouseRepo.findByWifeId(person2.getPersonId()));
-//            }
-//            for(SpouseEntity se:s){
-//                if(!person2.getPersonGender()){
-//                    if(personInTheMainTree.contains(se.getWifeId())){
-//                        personSpouse = personRepo.findFirstByPersonId(se.getWifeId());
-//                        break;
-//                    }
-//                }//
+//            else if (personInCenter.getGroupChildId() == person2.getGroupChildId()){
+//                if(personInCenter.getSiblingNum() > person2.getSiblingNum()){
+//                    return 1;
+//                }
 //                else{
-//                    if(personInTheMainTree.contains(se.getHusbandId())){
-//                        personSpouse = personRepo.findFirstByPersonId(se.getHusbandId());
-//                        break;
-//                    }
+//                    return -1;
 //                }
 //            }
+//            else if(){
 //
-//
-//        }
-//        PersonEntity personTemp1 = personInCenter;
-//        PersonEntity personTemp2 = personInCenter;
-//        if(rank1 == rank2){
-//            if(largerThan(personInCenter, person2) <= 1){
-//                return largerThan(personInCenter, person2);
 //            }
 //            else{
+//                int isFatherSide = fatherSide.get(person2.getPersonId());
+//                if(isFatherSide == 1){
 //
-//            }
-//        }
-//        if (rank1 < rank2){
-//            rankTemp = rank1;
-//            while(rankTemp < rank2){
-//                personTemp1 = personRepo.findFirstByPersonId(personTemp1.getFatherId());
-//                personTemp2 = personRepo.findFirstByPersonId(personTemp2.getMotherId());
-//            }
-//        }
-//        else{
+//                }
+//                else if(isFatherSide == 2){
 //
+//                }
+//            }
 //        }
 //    }
-//    public static String getVocative(PersonEntity personInCenter, PersonEntity person2, ArrayList<Integer> personInTheMainTree){
+//    public static String getVocative(PersonEntity personInCenter, PersonEntity person2, ArrayList<Integer> personWithCenter, Map<Integer, Integer> fatherSide, ArrayList<PersonEntity> personEntities){
 //        int rank1 = personInCenter.getPersonRank();
 //        int rank2 = person2.getPersonRank();
 //        switch (rank1 - rank2){
@@ -193,10 +190,10 @@ public class GetPersonByCenter {
 //                if(personInCenter.getFatherId() == person2.getPersonId()) return "Bố";
 //                else if (personInCenter.getMotherId() == person2.getPersonId()) return "Mẹ";
 //                else{
-//                    if(isLarger(personInCenter, person2, personInTheMainTree) == 1) return "Bác";
-//                    else if(isLarger(personInCenter, person2, personInTheMainTree) == -1){
-//                        if("Bên Mẹ" == ""){
-//                            if(!personInTheMainTree.contains(person2.getFatherId()) && !personInTheMainTree.contains(person2.getMotherId())){
+//                    if(isLarger(personInCenter, person2, personWithCenter) == 1) return "Bác";
+//                    else if(isLarger(personInCenter, person2, personWithCenter) == -1){
+//                        if(fatherSide.get(person2.getPersonId()) == 2){
+//                            if(!personWithCenter.contains(person2.getFatherId()) && !personWithCenter.contains(person2.getMotherId())){
 //                                if(!person2.getPersonGender()) return "Chú";
 //                                else return "Mợ";
 //                            }
@@ -205,8 +202,8 @@ public class GetPersonByCenter {
 //                                else return "Cậu";
 //                            }
 //                        }
-//                        if("Bên bố" == ""){
-//                            if(!personInTheMainTree.contains(person2.getFatherId()) && !personInTheMainTree.contains(person2.getMotherId())){
+//                        if(fatherSide.get(person2.getPersonId()) == 1){
+//                            if(!personWithCenter.contains(person2.getFatherId()) && !personWithCenter.contains(person2.getMotherId())){
 //                                if(!person2.getPersonGender()) return "Chú";
 //                                else return "Thím";
 //                            }
@@ -244,18 +241,29 @@ public class GetPersonByCenter {
 //                return "Cháu"; //cháu
 //            case 3:
 //                ArrayList<PersonEntity> parents = new ArrayList<>();
-//                parents.add(personRepo.findFirstByPersonId(person2.getFatherId()));
-//                parents.add(personRepo.findFirstByPersonId(person2.getMotherId()));
-//
+//                if(person2.getFatherId() != null){
+//                    parents.add(findByPersonId(person2.getFatherId(), personEntities));
+//                }
+//                if(person2.getMotherId() != null){
+//                    parents.add(findByPersonId(person2.getMotherId(), personEntities));
+//                }
 //                ArrayList<PersonEntity> p = new ArrayList<>();
 //                for(PersonEntity pa : parents){
-//                    p.add(personRepo.findFirstByPersonId(pa.getFatherId()));
-//                    p.add(personRepo.findFirstByPersonId(pa.getMotherId()));
+//                    if(pa.getFatherId() != null){
+//                        p.add(findByPersonId(pa.getFatherId(), personEntities));
+//                    }
+//                    if(pa.getMotherId() != null){
+//                        p.add(findByPersonId(pa.getMotherId(), personEntities));
+//                    }
 //                }
 //                ArrayList<PersonEntity> pp = new ArrayList<>();
 //                for(PersonEntity pa : p){
-//                    pp.add(personRepo.findFirstByPersonId(pa.getFatherId()));
-//                    pp.add(personRepo.findFirstByPersonId(pa.getMotherId()));
+//                    if(pa.getFatherId() != null){
+//                        pp.add(findByPersonId(pa.getFatherId(), personEntities));
+//                    }
+//                    if(pa.getMotherId() != null){
+//                        pp.add(findByPersonId(pa.getMotherId(), personEntities));
+//                    }
 //                }
 //
 //                if(pp.contains(personInCenter)){
@@ -266,23 +274,39 @@ public class GetPersonByCenter {
 //                }
 //            case 4:
 //                ArrayList<PersonEntity> parents4 = new ArrayList<>();
-//                parents4.add(personRepo.findFirstByPersonId(person2.getFatherId()));
-//                parents4.add(personRepo.findFirstByPersonId(person2.getMotherId()));
+//                if(person2.getFatherId() != null){
+//                    parents4.add(findByPersonId(person2.getFatherId(), personEntities));
+//                }
+//                if(person2.getMotherId() != null){
+//                    parents4.add(findByPersonId(person2.getMotherId(), personEntities));
+//                }
 //
 //                ArrayList<PersonEntity> p4 = new ArrayList<>();
 //                for(PersonEntity pa : parents4){
-//                    p4.add(personRepo.findFirstByPersonId(pa.getFatherId()));
-//                    p4.add(personRepo.findFirstByPersonId(pa.getMotherId()));
+//                    if(pa.getFatherId() != null){
+//                        p4.add(findByPersonId(pa.getFatherId(), personEntities));
+//                    }
+//                    if(pa.getMotherId() != null){
+//                        p4.add(findByPersonId(pa.getMotherId(), personEntities));
+//                    }
 //                }
 //                ArrayList<PersonEntity> pp4 = new ArrayList<>();
 //                for(PersonEntity pa : p4){
-//                    pp4.add(personRepo.findFirstByPersonId(pa.getFatherId()));
-//                    pp4.add(personRepo.findFirstByPersonId(pa.getMotherId()));
+//                    if(pa.getFatherId() != null){
+//                        pp4.add(findByPersonId(pa.getFatherId(), personEntities));
+//                    }
+//                    if(pa.getMotherId() != null){
+//                        pp4.add(findByPersonId(pa.getMotherId(), personEntities));
+//                    }
 //                }
 //                ArrayList<PersonEntity> ppp4 = new ArrayList<>();
 //                for(PersonEntity pa : pp4){
-//                    ppp4.add(personRepo.findFirstByPersonId(pa.getFatherId()));
-//                    ppp4.add(personRepo.findFirstByPersonId(pa.getMotherId()));
+//                    if(pa.getFatherId() != null){
+//                        ppp4.add(findByPersonId(pa.getFatherId(), personEntities));
+//                    }
+//                    if(pa.getMotherId() != null){
+//                        ppp4.add(findByPersonId(pa.getMotherId(), personEntities));
+//                    }
 //                }
 //                if(ppp4.contains(personInCenter)){
 //                    return "Chút/Chít";
@@ -292,28 +316,48 @@ public class GetPersonByCenter {
 //                }
 //            case 5:
 //                ArrayList<PersonEntity> parents5 = new ArrayList<>();
-//                parents5.add(personRepo.findFirstByPersonId(person2.getFatherId()));
-//                parents5.add(personRepo.findFirstByPersonId(person2.getMotherId()));
+//                if(person2.getFatherId() != null){
+//                    parents5.add(findByPersonId(person2.getFatherId(), personEntities));
+//                }
+//                if(person2.getMotherId() != null){
+//                    parents5.add(findByPersonId(person2.getMotherId(), personEntities));
+//                }
 //
 //                ArrayList<PersonEntity> p5 = new ArrayList<>();
 //                for(PersonEntity pa : parents5){
-//                    p5.add(personRepo.findFirstByPersonId(pa.getFatherId()));
-//                    p5.add(personRepo.findFirstByPersonId(pa.getMotherId()));
+//                    if(pa.getFatherId() != null){
+//                        p5.add(findByPersonId(pa.getFatherId(), personEntities));
+//                    }
+//                    if(pa.getMotherId() != null){
+//                        p5.add(findByPersonId(pa.getMotherId(), personEntities));
+//                    }
 //                }
 //                ArrayList<PersonEntity> pp5 = new ArrayList<>();
 //                for(PersonEntity pa : p5){
-//                    pp5.add(personRepo.findFirstByPersonId(pa.getFatherId()));
-//                    pp5.add(personRepo.findFirstByPersonId(pa.getMotherId()));
+//                    if(pa.getFatherId() != null){
+//                        pp5.add(findByPersonId(pa.getFatherId(), personEntities));
+//                    }
+//                    if(pa.getMotherId() != null){
+//                        pp5.add(findByPersonId(pa.getMotherId(), personEntities));
+//                    }
 //                }
 //                ArrayList<PersonEntity> ppp5 = new ArrayList<>();
 //                for(PersonEntity pa : pp5){
-//                    ppp5.add(personRepo.findFirstByPersonId(pa.getFatherId()));
-//                    ppp5.add(personRepo.findFirstByPersonId(pa.getMotherId()));
+//                    if(pa.getFatherId() != null){
+//                        ppp5.add(findByPersonId(pa.getFatherId(), personEntities));
+//                    }
+//                    if(pa.getMotherId() != null){
+//                        ppp5.add(findByPersonId(pa.getMotherId(), personEntities));
+//                    }
 //                }
 //                ArrayList<PersonEntity> pppp = new ArrayList<>();
 //                for(PersonEntity pa : ppp5){
-//                    pppp.add(personRepo.findFirstByPersonId(pa.getFatherId()));
-//                    pppp.add(personRepo.findFirstByPersonId(pa.getMotherId()));
+//                    if(pa.getFatherId() != null){
+//                        pppp.add(findByPersonId(pa.getFatherId(), personEntities));
+//                    }
+//                    if(pa.getMotherId() != null){
+//                        pppp.add(findByPersonId(pa.getMotherId(), personEntities));
+//                    }
 //                }
 //                if(pppp.contains(personInCenter)){
 //                    return "Chụt/Chuỵt";
@@ -358,7 +402,8 @@ public class GetPersonByCenter {
                                  ArrayList<Integer> personIdInTheMainTree,
                                  ArrayList<PersonEntity> persons,
                                  ArrayList<SpouseEntity> spouses,
-                                 Map<Integer, Integer> fatherSide) {
+                                 Map<Integer, Integer> fatherSide,
+                                 Map<Integer, Boolean> intestine) {
         Set<Integer> personTemp = new HashSet<>();
         for (int i = 0; i < personIdInTheMainTree.size(); i++) {
 
@@ -377,9 +422,8 @@ public class GetPersonByCenter {
                     personsWithCenter.addAll(getPersonIdBySpouseId(spouses, personId, persons));
                     ArrayList<Integer> spousePidList = getPersonIdBySpouseId(spouses, personId, persons);
                     for(int x: spousePidList){
-                        if(fatherSide.get(x) == null){
-                            fatherSide.put(x, isFatherSide);
-                        }
+                        fatherSide.putIfAbsent(x, isFatherSide);
+                        intestine.putIfAbsent(x, Boolean.TRUE);
                     }
                 }
             }
@@ -389,6 +433,7 @@ public class GetPersonByCenter {
 
                     int childPersonId = person.getPersonId();
                     personsWithCenter.add(childPersonId);
+                    intestine.putIfAbsent(childPersonId, Boolean.TRUE);
                     fatherSide.putIfAbsent(childPersonId, isFatherSide);
                     personTemp.add(childPersonId);
                     ArrayList<Integer> spousePidList2 = getPersonIdBySpouseId(spouses, childPersonId, persons);
@@ -396,12 +441,13 @@ public class GetPersonByCenter {
                     personsWithCenter.addAll(spousePidList2);
                     for(int x: spousePidList2){
                         fatherSide.putIfAbsent(x, isFatherSideBySpouse);
+                        intestine.putIfAbsent(x, Boolean.FALSE);
                     }
                 }
             }
         }
         if (!personTemp.isEmpty()) {
-            getPerson(personsWithCenter, new ArrayList<>(personTemp), persons, spouses, fatherSide);
+            getPerson(personsWithCenter, new ArrayList<>(personTemp), persons, spouses, fatherSide, intestine);
         }
     }
     public static PersonInfoDisplay getInfor(ArrayList<Integer> personsWithCenter,
@@ -461,14 +507,14 @@ public class GetPersonByCenter {
         ArrayList<Integer> personIdInTheMainTree = new ArrayList<Integer>();
         ArrayList<SideDto> personWithSide = new ArrayList<SideDto>();
         Map<Integer, Integer> fatherSide = new HashMap<>();
-
-        getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide);
+        Map<Integer, Boolean> intestine = new HashMap<>();
+        getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide, intestine);
 //        for(int j:personIdInTheMainTree){
 //            System.out.print(j + " ");
 //        }
 //        System.out.println();
         ArrayList<Integer> personsWithCenter = new ArrayList<>(personIdInTheMainTree);
-        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide);
+        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine);
 //        for(int j:personsWithCenter){
 //            System.out.print(j + " ");
 //        }
@@ -542,18 +588,11 @@ public class GetPersonByCenter {
         ArrayList<Integer> personIdInTheMainTree = new ArrayList<Integer>();
         ArrayList<SideDto> personWithSide = new ArrayList<SideDto>();
         Map<Integer, Integer> fatherSide = new HashMap<>();
+        Map<Integer, Boolean> intestine = new HashMap<>();
+        getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide, intestine);
 
-        getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide);
-//        for(int j:personIdInTheMainTree){
-//            System.out.print(j + " ");
-//        }
-//        System.out.println();
         ArrayList<Integer> personsWithCenter = new ArrayList<>(personIdInTheMainTree);
-        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide);
-//        for(int j:personsWithCenter){
-//            System.out.print(j + " ");
-//        }
-//        System.out.println();
+        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine);
 
         Set<Integer> sett = new LinkedHashSet<>();
         sett.addAll(personsWithCenter);
@@ -564,6 +603,7 @@ public class GetPersonByCenter {
         for(int i = 0; i < personsWithCenter.size(); i++){
             apiDisplays.add(getInforSimplified(personsWithCenter, personsWithCenter.get(i), listPerson, listSpouse, apiDisplays, personWithSide, personCenterId, fatherSide));
         }
+
         return apiDisplays;
     }
     public static Map<Integer, PersonDataV2> getDataV2(int familyTreeId, int personCenterId, ArrayList<SpouseEntity> listSpouse, ArrayList<PersonEntity> listPerson){
@@ -585,5 +625,46 @@ public class GetPersonByCenter {
             apiDislays.put(personId, personDataV2);
         }
         return apiDislays;
+    }
+    public static ArrayList<PersonEntity> sharingList(int familyTreeId, int personCenterId, ArrayList<SpouseEntity> listSpouse, ArrayList<PersonEntity> listPerson, int side /*3: ALL, 2: Bố, 1: Mẹ*/){
+        ArrayList<Integer> personIdInTheMainTree = new ArrayList<Integer>();
+        ArrayList<SideDto> personWithSide = new ArrayList<SideDto>();
+        Map<Integer, Integer> fatherSide = new HashMap<>();
+        Map<Integer, Boolean> intestine = new HashMap<>();
+        getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide, intestine);
+
+        ArrayList<Integer> personsWithCenter = new ArrayList<>(personIdInTheMainTree);
+        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine);
+
+        Set<Integer> sett = new LinkedHashSet<>();
+        sett.addAll(personsWithCenter);
+        personsWithCenter.clear();
+        personsWithCenter.addAll(sett);
+
+        PersonEntity personCenter = findByPersonId(personCenterId, listPerson);
+        ArrayList<PersonEntity> res = new ArrayList<>();
+
+        if(findByPersonId(personCenter.getMotherId(), listPerson) != null){
+            res.add(findByPersonId(personCenter.getMotherId(), listPerson));
+        }
+        if(findByPersonId(personCenter.getFatherId(), listPerson) != null){
+            res.add(findByPersonId(personCenter.getFatherId(), listPerson));
+        }
+
+        for(int x : personsWithCenter){
+            if(fatherSide.get(x) != side){
+                PersonEntity p = findByPersonId(x, listPerson);
+                if(!res.contains(p)){
+                    res.add(p);
+                }
+            }
+        }
+        Collections.sort(res, new Comparator<PersonEntity>() {
+            @Override
+            public int compare(PersonEntity o1, PersonEntity o2) {
+                return o1.getPersonId() - o2.getPersonId();
+            }
+        });
+        return res;
     }
 }

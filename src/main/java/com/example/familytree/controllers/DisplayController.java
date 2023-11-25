@@ -80,4 +80,27 @@ public class DisplayController {
         listSpouse.addAll(set);
         return GetPersonByCenter.getDataV2(ft, pid, listSpouse, listPerson);
     }
+    @GetMapping("/test5")
+    ArrayList<PersonEntity> p(@RequestParam int ft, @RequestParam int pid, @RequestParam int side){
+        //default side = 3
+        //Kiểm tra side khác 1, 2, 3. Nếu khác đưa về 3
+        ArrayList<PersonEntity> list =  new ArrayList<>(personRepo.findByFamilyTreeId(ft));
+        ArrayList<PersonEntity> listPerson = new ArrayList<>();
+        for(PersonEntity p : list){
+            if(!p.getPersonIsDeleted()){ //chua xoa
+                listPerson.add(p);
+            }
+        }
+        ArrayList<SpouseEntity> listSpouse = new ArrayList<>();
+        for (PersonEntity p: listPerson) {
+            int personId = p.getPersonId();
+            listSpouse.addAll(spouseRepo.findByHusbandId(personId));
+            listSpouse.addAll(spouseRepo.findByWifeId(personId));
+        }
+        Set<SpouseEntity> set = new LinkedHashSet<>();
+        set.addAll(listSpouse);
+        listSpouse.clear();
+        listSpouse.addAll(set);
+        return GetPersonByCenter.sharingList(ft, pid, listSpouse, listPerson, side); //side = 3: ALL, side = 1: Lấy bên Ngoại, side = 2: Lấy bên nội
+    }
 }
