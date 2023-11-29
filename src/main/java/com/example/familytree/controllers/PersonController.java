@@ -7,8 +7,6 @@ import com.example.familytree.models.dto.PersonDto;
 import com.example.familytree.models.dto.UpdatePersonDto;
 import com.example.familytree.repositories.*;
 import com.example.familytree.services.PersonService;
-import com.example.familytree.services.SpouseService;
-import com.example.familytree.services.TreeNodeService;
 import com.example.familytree.shareds.Constants;
 import com.example.familytree.utils.BearerTokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.MessageFormat;
@@ -33,8 +30,6 @@ public class PersonController {
     private final UserAccountRepo userAccountRepo;
     private final FamilyTreeUserRepo familyTreeUserRepo;
     private final FamilyTreeRepo familyTreeRepo;
-
-
 
     @GetMapping(path = "/getInfo")
     public ResponseEntity<ApiResult<?>> getInfoPerson(@Valid @RequestParam int personId, HttpServletRequest request) {
@@ -163,7 +158,7 @@ public class PersonController {
         }
         // ktra xem có đúng là không có ace không
         if (siblingId == 0 ) {
-            List<PersonEntity> listChild = null;
+            List<PersonEntity> listChild;
             if (childrenDto.getFatherId() != null && childrenDto.getMotherId() == null)
                 listChild = personRepo.findByFatherId(childrenDto.getFatherId());
             else if (childrenDto.getFatherId() == null && childrenDto.getMotherId() != null)
@@ -211,7 +206,7 @@ public class PersonController {
 
     @PostMapping(path = "/createSpouse")
     public ResponseEntity<ApiResult<?>> createSpouse(@Valid @RequestBody PersonDto personDto, @RequestParam int personId, HttpServletRequest request) {
-        ApiResult<?> result = null;
+        ApiResult<?> result;
 
         // ktra người dùng có trong cây k
         String username = BearerTokenUtil.getUserName(request);
@@ -240,7 +235,7 @@ public class PersonController {
     }
     @PutMapping(path = "/update")
     public ResponseEntity<ApiResult<?>> updatePerson(@Valid @RequestBody UpdatePersonDto newPerson, HttpServletRequest request){
-        ApiResult<?> result = null;
+        ApiResult<?> result;
 
         PersonEntity personById = personRepo.findFirstByPersonId(newPerson.getPersonId());
         if (personById == null){
@@ -326,7 +321,7 @@ public class PersonController {
 
     @DeleteMapping(path = "/delete")
     public ResponseEntity<ApiResult<?>> deletePerson(@RequestParam int personId, HttpServletRequest request) {
-        ApiResult<?> result = null;
+        ApiResult<?> result;
         // ktra người dùng có trong cây k
         PersonEntity personByPersonId = personRepo.findFirstByPersonId(personId);
         if (personByPersonId == null){
@@ -354,7 +349,7 @@ public class PersonController {
 
     @GetMapping(path = "/getChild")
     public ResponseEntity<ApiResult<?>> getChildByFatherAndMother(@RequestParam(required = false, defaultValue = "0") int fatherId, @RequestParam(required = false, defaultValue = "0") int motherId, HttpServletRequest request) {
-        ApiResult<?> result = null;
+        ApiResult<?> result;
 
         String username = BearerTokenUtil.getUserName(request);
         UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);

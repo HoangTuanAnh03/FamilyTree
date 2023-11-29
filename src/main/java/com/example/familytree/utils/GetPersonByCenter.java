@@ -584,7 +584,7 @@ public class GetPersonByCenter {
         }
         return api;
     }
-    public static ArrayList<PersonInfoSimplifiedInfoDis> getPersonSimplified(int familyTreeId, int personCenterId, ArrayList<SpouseEntity> listSpouse, ArrayList<PersonEntity> listPerson){
+    public static List<PersonInfoSimplifiedInfoDis> getPersonSimplified(int familyTreeId, int personCenterId, ArrayList<SpouseEntity> listSpouse, ArrayList<PersonEntity> listPerson){
         ArrayList<Integer> personIdInTheMainTree = new ArrayList<Integer>();
         ArrayList<SideDto> personWithSide = new ArrayList<SideDto>();
         Map<Integer, Integer> fatherSide = new HashMap<>();
@@ -626,7 +626,7 @@ public class GetPersonByCenter {
         }
         return apiDislays;
     }
-    public static ArrayList<PersonEntity> sharingList(int familyTreeId, int personCenterId, ArrayList<SpouseEntity> listSpouse, ArrayList<PersonEntity> listPerson, int side /*3: ALL, 2: Bố, 1: Mẹ*/){
+    public static List<PersonEntity> sharingListPerson(int familyTreeId, int personCenterId, ArrayList<SpouseEntity> listSpouse, ArrayList<PersonEntity> listPerson, int side /*3: ALL, 2: Bố, 1: Mẹ*/){
         ArrayList<Integer> personIdInTheMainTree = new ArrayList<Integer>();
         ArrayList<SideDto> personWithSide = new ArrayList<SideDto>();
         Map<Integer, Integer> fatherSide = new HashMap<>();

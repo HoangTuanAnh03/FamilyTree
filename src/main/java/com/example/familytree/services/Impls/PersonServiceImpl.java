@@ -2,7 +2,6 @@ package com.example.familytree.services.Impls;
 
 import com.example.familytree.entities.PersonEntity;
 import com.example.familytree.entities.SpouseEntity;
-import com.example.familytree.models.ApiResult;
 import com.example.familytree.models.dto.PersonDto;
 import com.example.familytree.models.dto.UpdatePersonDto;
 import com.example.familytree.models.response.InfoAddPersonResponse;
@@ -12,12 +11,9 @@ import com.example.familytree.services.PersonService;
 import com.example.familytree.shareds.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

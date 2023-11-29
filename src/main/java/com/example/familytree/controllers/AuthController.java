@@ -10,7 +10,6 @@ import com.example.familytree.models.dto.UserInfo;
 import com.example.familytree.repositories.KeyRepo;
 import com.example.familytree.repositories.UserAccountRepo;
 import com.example.familytree.security.JwtService;
-import com.example.familytree.services.UserAccountService;
 import com.example.familytree.utils.BearerTokenUtil;
 import com.example.familytree.utils.GenerateKeyUtil;
 import com.nimbusds.jose.shaded.gson.JsonObject;
@@ -35,7 +34,6 @@ public class AuthController {
 
 
     private final JwtService jwtService;
-    private final UserAccountService userAccountService;
     private final UserDetailsService userDetailsService;
     private final AuthenticationManager authenticationManager;
     private final UserAccountRepo userAccountRepo;
@@ -51,13 +49,12 @@ public class AuthController {
     public ResponseEntity<ApiResult<TokenResponse>> verifyUser(@RequestParam(name = "token") String token) {
         ApiResult<TokenResponse> result = null;
 
-        String username = null;
         Base64.Decoder decoder = Base64.getUrlDecoder();
         String[] chunks = token.split("\\.");
         String payload = new String(decoder.decode(chunks[1]));
         JsonObject jsonObject = new JsonParser().parse(payload).getAsJsonObject();
 
-        username = jsonObject.get("sub").getAsString();
+        String username = jsonObject.get("sub").getAsString();
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         UserAccountEntity user = userAccountRepo.findFirstByUserEmail(username);

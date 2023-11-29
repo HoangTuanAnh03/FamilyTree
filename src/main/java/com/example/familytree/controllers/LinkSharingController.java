@@ -1,12 +1,10 @@
 package com.example.familytree.controllers;
 
-import com.example.familytree.entities.FamilyTreeEntity;
 import com.example.familytree.entities.FamilyTreeUserEntity;
 import com.example.familytree.entities.LinkSharingEntity;
 import com.example.familytree.entities.UserAccountEntity;
 import com.example.familytree.models.ApiResult;
 import com.example.familytree.repositories.*;
-import com.example.familytree.services.FamilyTreeService;
 import com.example.familytree.services.LinkSharingService;
 import com.example.familytree.shareds.Constants;
 import com.example.familytree.utils.BearerTokenUtil;
@@ -33,7 +31,7 @@ public class LinkSharingController {
 
     @PostMapping(path = "/create")
     public ResponseEntity<ApiResult<?>> createLinkShare (@RequestParam int familyTreeId, @RequestParam int personId, HttpServletRequest request) {
-        ApiResult<?> result = null;
+        ApiResult<?> result;
         // Cây có tồn tại không
         if (!familyTreeRepo.existsByFamilyTreeId(familyTreeId)) {
             result = ApiResult.create(HttpStatus.NOT_FOUND, MessageFormat.format(Constants.NOT_FOUND_FAMILY_TREE, familyTreeId), null);
@@ -65,7 +63,7 @@ public class LinkSharingController {
 
     @PostMapping(path = "")
     public ResponseEntity<ApiResult<?>> joinLink (@RequestParam String code,  HttpServletRequest request) {
-        ApiResult<?> result = null;
+        ApiResult<?> result;
 
         String email = BearerTokenUtil.getUserName(request);
         UserAccountEntity userByToken = userAccountRepo.findFirstByUserEmail(email);

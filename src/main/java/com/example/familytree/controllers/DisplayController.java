@@ -7,7 +7,11 @@ import com.example.familytree.models.response.PersonInfoDisplay;
 import com.example.familytree.models.response.PersonInfoSimplifiedInfoDis;
 import com.example.familytree.repositories.PersonRepo;
 import com.example.familytree.repositories.SpouseRepo;
+import com.example.familytree.services.FamilyTreeService;
 import com.example.familytree.utils.GetPersonByCenter;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,9 +26,15 @@ import java.util.*;
 public class DisplayController {
     private final PersonRepo personRepo;
     private final SpouseRepo spouseRepo;
+    private final FamilyTreeService familyTreeService;
+    private final EntityManager em;
+
     @GetMapping(path = "/test2")
-    ArrayList<PersonInfoSimplifiedInfoDis> a(@RequestParam int ft,
-                                             @RequestParam int pid){
+    List<PersonInfoSimplifiedInfoDis> a(@RequestParam int ft,
+                                             @RequestParam int pid,
+                                             HttpServletRequest request){
+
+
         //ft: familytreeid
         //pid: personid
         //CHECK person có trong cây ko
@@ -81,26 +91,50 @@ public class DisplayController {
         return GetPersonByCenter.getDataV2(ft, pid, listSpouse, listPerson);
     }
     @GetMapping("/test5")
-    ArrayList<PersonEntity> p(@RequestParam int ft, @RequestParam int pid, @RequestParam int side){
-        //default side = 3
-        //Kiểm tra side khác 1, 2, 3. Nếu khác đưa về 3
-        ArrayList<PersonEntity> list =  new ArrayList<>(personRepo.findByFamilyTreeId(ft));
-        ArrayList<PersonEntity> listPerson = new ArrayList<>();
-        for(PersonEntity p : list){
-            if(!p.getPersonIsDeleted()){ //chua xoa
-                listPerson.add(p);
-            }
-        }
-        ArrayList<SpouseEntity> listSpouse = new ArrayList<>();
-        for (PersonEntity p: listPerson) {
-            int personId = p.getPersonId();
-            listSpouse.addAll(spouseRepo.findByHusbandId(personId));
-            listSpouse.addAll(spouseRepo.findByWifeId(personId));
-        }
-        Set<SpouseEntity> set = new LinkedHashSet<>();
-        set.addAll(listSpouse);
-        listSpouse.clear();
-        listSpouse.addAll(set);
-        return GetPersonByCenter.sharingList(ft, pid, listSpouse, listPerson, side); //side = 3: ALL, side = 1: Lấy bên Ngoại, side = 2: Lấy bên nội
+    List<PersonEntity> p(@RequestParam int ft, @RequestParam int pid, @RequestParam int side){
+        return familyTreeService.getListSharingPerson(ft, pid, side)  ;
+    }
+    @GetMapping("/test6")
+    List<SpouseEntity> q(@RequestParam int pid, @RequestParam int side){
+        PersonEntity person = personRepo.findFirstByPersonId(pid);
+
+        List<PersonEntity> listPerson = familyTreeService.getListSharingPerson(person.getFamilyTreeId(), pid, side);
+        return familyTreeService.getListSharingSpouse(listPerson);
+    }
+    @GetMapping("/test7")
+    List<SpouseEntity> s(){
+
+        em.createNativeQuery("SET IDENTITY_INSERT Person OFF").executeUpdate();
+
+        PersonEntity newPerson = PersonEntity.create(
+            100,
+                "Người thứ 100",
+                false,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                true,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        personRepo.save(newPerson);
+//        em.persist(newPerson);
+        em.createNativeQuery("SET IDENTITY_INSERT Person ON").executeUpdate();
+        return null;
     }
 }

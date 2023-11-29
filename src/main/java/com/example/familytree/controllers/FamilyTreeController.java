@@ -1,13 +1,8 @@
 package com.example.familytree.controllers;
 
-import com.example.familytree.entities.FamilyTreeEntity;
-import com.example.familytree.entities.FamilyTreeUserEntity;
-import com.example.familytree.entities.UserAccountEntity;
+import com.example.familytree.entities.*;
 import com.example.familytree.models.ApiResult;
-import com.example.familytree.repositories.FamilyTreeRepo;
-import com.example.familytree.repositories.FamilyTreeUserRepo;
-import com.example.familytree.repositories.PersonRepo;
-import com.example.familytree.repositories.UserAccountRepo;
+import com.example.familytree.repositories.*;
 import com.example.familytree.services.FamilyTreeService;
 import com.example.familytree.shareds.Constants;
 import com.example.familytree.utils.BearerTokenUtil;
@@ -27,11 +22,13 @@ public class FamilyTreeController {
 
     private final UserAccountRepo userAccountRepo;
     private final FamilyTreeUserRepo familyTreeUserRepo;
+    private final PersonRepo personRepo;
     private final FamilyTreeRepo familyTreeRepo;
     private final FamilyTreeService familyTreeService;
+
     @PostMapping("/create")
     public ResponseEntity<ApiResult<?>> create(HttpServletRequest request, @RequestBody FamilyTreeEntity familyTreeEntity) {
-        ApiResult<?> result = null;
+        ApiResult<?> result;
         String email = BearerTokenUtil.getUserName(request);
 
         UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(email);
@@ -64,18 +61,16 @@ public class FamilyTreeController {
 
     @GetMapping("/list")
     public ResponseEntity<ApiResult<?>> list(HttpServletRequest request) {
-        ApiResult<?> result = null;
-
         String email = BearerTokenUtil.getUserName(request);
         UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(email);
 
-        result = ApiResult.create(HttpStatus.OK, "lấy thành công danh sách cây của người dùng!", familyTreeService.getListTreeByUserId(userByEmail.getUserId()));
+        ApiResult<?> result = ApiResult.create(HttpStatus.OK, "lấy thành công danh sách cây của người dùng!", familyTreeService.getListTreeByUserId(userByEmail.getUserId()));
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/listUser")
     public ResponseEntity<ApiResult<?>> listUser(@RequestParam int familyTreeId, HttpServletRequest request) {
-        ApiResult<?> result = null;
+        ApiResult<?> result;
 
         String email = BearerTokenUtil.getUserName(request);
         UserAccountEntity userByToken = userAccountRepo.findFirstByUserEmail(email);
@@ -97,7 +92,7 @@ public class FamilyTreeController {
 
     @PostMapping(path = "/actionUser")
     public ResponseEntity<ApiResult<?>> actionUser(@RequestParam int familyTreeId, @RequestParam int userId, @RequestParam String action, HttpServletRequest request){
-        ApiResult<?> result = null;
+        ApiResult<?> result ;
 
         String email = BearerTokenUtil.getUserName(request);
         UserAccountEntity userByToken = userAccountRepo.findFirstByUserEmail(email);
@@ -188,10 +183,74 @@ public class FamilyTreeController {
     }
 
     @PostMapping(path = "/copy")
-    public ResponseEntity<ApiResult<?>> copy(@RequestParam int familyTreeId, @RequestParam int personId, @RequestParam String action, HttpServletRequest request){
-        ApiResult<?> result = null;
+    public ResponseEntity<ApiResult<?>> copy(@RequestParam String newName, @RequestParam int personId, @RequestParam int side, HttpServletRequest request){
+        ApiResult<?> result;
+        // Ktra person
+        PersonEntity personById = personRepo.findFirstByPersonId(personId);
+        if (personById == null){
+            result = ApiResult.create(HttpStatus.NOT_FOUND, MessageFormat.format(Constants.NOT_FOUND_PERSON, personId), null);
+            return ResponseEntity.ok(result);
+        }
+        int familyTreeId = personById.getFamilyTreeId();
+        // ktra người dùng có trong cây k
+        String username = BearerTokenUtil.getUserName(request);
+        UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
 
+        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(familyTreeId, userByEmail.getUserId(), true)) {
+            result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE, userByEmail.getUserId(), personId), null);
+            return ResponseEntity.ok(result);
+        }
+        // Side phải là 1, 2, 3
+        if (side != 1 && side != 2 && side !=3) {
+            result = ApiResult.create(HttpStatus.BAD_REQUEST, "Side phải thuộc tập giá trị {1, 2, 3}!!!", null);
+            return ResponseEntity.ok(result);
+        }
+
+        //service
+        result = ApiResult.create(HttpStatus.OK, "Sao chép thành công!", familyTreeService.copy(newName, personById, side, userByEmail));
         return ResponseEntity.ok(result);
     }
 
+
+    @GetMapping(path = "/getPersonSimplified")
+    ResponseEntity<ApiResult<?>> getPersonSimplified (@RequestParam int pid, HttpServletRequest request){
+        ApiResult<?> result;
+        // Ktra person
+        PersonEntity personById = personRepo.findFirstByPersonId(pid);
+        if (personById == null){
+            result = ApiResult.create(HttpStatus.NOT_FOUND, MessageFormat.format(Constants.NOT_FOUND_PERSON, pid), null);
+            return ResponseEntity.ok(result);
+        }
+        // Người dùng có trong cây không
+        String username = BearerTokenUtil.getUserName(request);
+        UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
+        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(personById.getFamilyTreeId(), userByEmail.getUserId(), true)) {
+            result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE, userByEmail.getUserId(), pid), null);
+            return ResponseEntity.ok(result);
+        }
+
+        result = ApiResult.create(HttpStatus.OK, "Success", familyTreeService.getPersonSimplified(pid));
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping(path = "/getDataV2")
+    ResponseEntity<ApiResult<?>> getDataV2 (@RequestParam int pid, HttpServletRequest request){
+        ApiResult<?> result;
+        // Ktra person
+        PersonEntity personById = personRepo.findFirstByPersonId(pid);
+        if (personById == null){
+            result = ApiResult.create(HttpStatus.NOT_FOUND, MessageFormat.format(Constants.NOT_FOUND_PERSON, pid), null);
+            return ResponseEntity.ok(result);
+        }
+        // Người dùng có trong cây không
+        String username = BearerTokenUtil.getUserName(request);
+        UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
+        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(personById.getFamilyTreeId(), userByEmail.getUserId(), true)) {
+            result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE, userByEmail.getUserId(), pid), null);
+            return ResponseEntity.ok(result);
+        }
+
+        result = ApiResult.create(HttpStatus.OK, "Success", familyTreeService.getDataV2(pid));
+        return ResponseEntity.ok(result);
+    }
 }
