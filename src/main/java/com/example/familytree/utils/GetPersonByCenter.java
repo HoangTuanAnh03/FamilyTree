@@ -33,7 +33,7 @@ public class GetPersonByCenter {
         return 0;
     }
     public static PersonEntity findByPersonId(Integer personId, ArrayList<PersonEntity> personEntities){
-        if(personId == null){
+        if(personId == null || personId == 0){
             return null;
         }
         for(PersonEntity p : personEntities){
@@ -42,6 +42,15 @@ public class GetPersonByCenter {
             }
         }
         return null;
+    }
+    public static int getPersonIdInTreeBySpouse(ArrayList<Integer> personWithCenter, ArrayList<SpouseEntity> listSpouse, int personId, ArrayList<PersonEntity> personEntities){
+        ArrayList<Integer> listPBS = getPersonIdBySpouseId(listSpouse, personId, personEntities);
+        for(int i : listPBS ){
+            if (personWithCenter.contains(i)){
+                return i;
+            }
+        }
+        return 0;
     }
     public static int getFatherIdByPersonId(int personId, ArrayList<PersonEntity> listPerson) {
         for (int i = 0; i < listPerson.size(); i++) {
@@ -120,255 +129,314 @@ public class GetPersonByCenter {
     public static String getVocative(PersonEntity personInCenter, PersonEntity person2, ArrayList<Integer> personInTheMainTree) {
         return "";
     }
-    //    public static int largerThan(PersonEntity person1, PersonEntity person2){
-//        if(person1.getPersonId() == person2.getPersonId()){
-//            return 0;
-//        }
-//        else if(person1.getGroupChildId() == person2.getGroupChildId()){
-//            if(person1.getSiblingNum() < person2.getSiblingNum()){
-//                return -1;
-//            }
-//            else{
-//                return 1;
-//            }
-//        }
-//        else{
-//            return 199;
-//        }
-//    }
-//    public static int isLarger(PersonEntity personInCenter, PersonEntity person2, ArrayList<Integer> personWithCenter, Map<Integer, Integer> fatherSide){
-//        int rank1 = personInCenter.getPersonRank();
-//        int rank2 = person2.getPersonRank();
-//        if(rank2 < rank1){ // person2 đi lên
-//
-//        }
-//        else if(rank2 > rank1){ //person 1 đi lên
-//
-//        }
-//        else{ //cả 2 cùng đi
-//            if(personInCenter == person2){
-//                return 0;
-//            }
-//            else if (personInCenter.getGroupChildId() == person2.getGroupChildId()){
-//                if(personInCenter.getSiblingNum() > person2.getSiblingNum()){
-//                    return 1;
-//                }
-//                else{
-//                    return -1;
-//                }
-//            }
-//            else if(){
-//
-//            }
-//            else{
-//                int isFatherSide = fatherSide.get(person2.getPersonId());
-//                if(isFatherSide == 1){
-//
-//                }
-//                else if(isFatherSide == 2){
-//
-//                }
-//            }
-//        }
-//    }
-//    public static String getVocative(PersonEntity personInCenter, PersonEntity person2, ArrayList<Integer> personWithCenter, Map<Integer, Integer> fatherSide, ArrayList<PersonEntity> personEntities){
-//        int rank1 = personInCenter.getPersonRank();
-//        int rank2 = person2.getPersonRank();
-//        switch (rank1 - rank2){
-//            case -5:
-//                return "Tiên tổ";
-//            case -4:
-//                return "Kỵ";
-//            case -3:
-//                return "Cố";
-//            case -2:
-//                if(person2.getPersonGender()){
-//                    return "Ông";
-//                }
-//                return "Bà";
-//            case -1:
-//                if(personInCenter.getFatherId() == person2.getPersonId()) return "Bố";
-//                else if (personInCenter.getMotherId() == person2.getPersonId()) return "Mẹ";
-//                else{
-//                    if(isLarger(personInCenter, person2, personWithCenter) == 1) return "Bác";
-//                    else if(isLarger(personInCenter, person2, personWithCenter) == -1){
-//                        if(fatherSide.get(person2.getPersonId()) == 2){
-//                            if(!personWithCenter.contains(person2.getFatherId()) && !personWithCenter.contains(person2.getMotherId())){
-//                                if(!person2.getPersonGender()) return "Chú";
-//                                else return "Mợ";
-//                            }
-//                            else{
-//                                if(person2.getPersonGender()) return "Dì";
-//                                else return "Cậu";
-//                            }
-//                        }
-//                        if(fatherSide.get(person2.getPersonId()) == 1){
-//                            if(!personWithCenter.contains(person2.getFatherId()) && !personWithCenter.contains(person2.getMotherId())){
-//                                if(!person2.getPersonGender()) return "Chú";
-//                                else return "Thím";
-//                            }
-//                            else{
-//                                if(person2.getPersonGender()) return "Cô";
-//                                else return "Chú";
-//                            }
-//                        }
-//                    }
-//                    return "";//bố, mẹ, bác, cô, dì, chú
-//                }
-//            case 0:
-//                if(personInCenter.getGroupChildId() == person2.getGroupChildId()){
-//                    if(personInCenter.getSiblingNum() > person2.getSiblingNum()){
-//                        return "Em";
-//                    }
-//                    else if (personInCenter.getSiblingNum() < person2.getSiblingNum()){
-//                        if(person2.getPersonGender()){
-//                            return "Chị";
-//                        }
-//                        else{
-//                            return "Anh";
-//                        }
-//                    }
-//                }
-//                else{
-//                    return "";
-//                }
-//            case 1:
-//                if(person2.getFatherId() == personInCenter.getPersonId() || person2.getMotherId() == personInCenter.getPersonId()){
-//                    return "Con";
-//                }
-//                return "Cháu"; //Con, cháu
-//            case 2:
-//                return "Cháu"; //cháu
-//            case 3:
-//                ArrayList<PersonEntity> parents = new ArrayList<>();
-//                if(person2.getFatherId() != null){
-//                    parents.add(findByPersonId(person2.getFatherId(), personEntities));
-//                }
-//                if(person2.getMotherId() != null){
-//                    parents.add(findByPersonId(person2.getMotherId(), personEntities));
-//                }
-//                ArrayList<PersonEntity> p = new ArrayList<>();
-//                for(PersonEntity pa : parents){
-//                    if(pa.getFatherId() != null){
-//                        p.add(findByPersonId(pa.getFatherId(), personEntities));
-//                    }
-//                    if(pa.getMotherId() != null){
-//                        p.add(findByPersonId(pa.getMotherId(), personEntities));
-//                    }
-//                }
-//                ArrayList<PersonEntity> pp = new ArrayList<>();
-//                for(PersonEntity pa : p){
-//                    if(pa.getFatherId() != null){
-//                        pp.add(findByPersonId(pa.getFatherId(), personEntities));
-//                    }
-//                    if(pa.getMotherId() != null){
-//                        pp.add(findByPersonId(pa.getMotherId(), personEntities));
-//                    }
-//                }
-//
-//                if(pp.contains(personInCenter)){
-//                    return "Chắt";
-//                }
-//                else{
-//                    return "Cháu";
-//                }
-//            case 4:
-//                ArrayList<PersonEntity> parents4 = new ArrayList<>();
-//                if(person2.getFatherId() != null){
-//                    parents4.add(findByPersonId(person2.getFatherId(), personEntities));
-//                }
-//                if(person2.getMotherId() != null){
-//                    parents4.add(findByPersonId(person2.getMotherId(), personEntities));
-//                }
-//
-//                ArrayList<PersonEntity> p4 = new ArrayList<>();
-//                for(PersonEntity pa : parents4){
-//                    if(pa.getFatherId() != null){
-//                        p4.add(findByPersonId(pa.getFatherId(), personEntities));
-//                    }
-//                    if(pa.getMotherId() != null){
-//                        p4.add(findByPersonId(pa.getMotherId(), personEntities));
-//                    }
-//                }
-//                ArrayList<PersonEntity> pp4 = new ArrayList<>();
-//                for(PersonEntity pa : p4){
-//                    if(pa.getFatherId() != null){
-//                        pp4.add(findByPersonId(pa.getFatherId(), personEntities));
-//                    }
-//                    if(pa.getMotherId() != null){
-//                        pp4.add(findByPersonId(pa.getMotherId(), personEntities));
-//                    }
-//                }
-//                ArrayList<PersonEntity> ppp4 = new ArrayList<>();
-//                for(PersonEntity pa : pp4){
-//                    if(pa.getFatherId() != null){
-//                        ppp4.add(findByPersonId(pa.getFatherId(), personEntities));
-//                    }
-//                    if(pa.getMotherId() != null){
-//                        ppp4.add(findByPersonId(pa.getMotherId(), personEntities));
-//                    }
-//                }
-//                if(ppp4.contains(personInCenter)){
-//                    return "Chút/Chít";
-//                }
-//                else{
-//                    return "Cháu";
-//                }
-//            case 5:
-//                ArrayList<PersonEntity> parents5 = new ArrayList<>();
-//                if(person2.getFatherId() != null){
-//                    parents5.add(findByPersonId(person2.getFatherId(), personEntities));
-//                }
-//                if(person2.getMotherId() != null){
-//                    parents5.add(findByPersonId(person2.getMotherId(), personEntities));
-//                }
-//
-//                ArrayList<PersonEntity> p5 = new ArrayList<>();
-//                for(PersonEntity pa : parents5){
-//                    if(pa.getFatherId() != null){
-//                        p5.add(findByPersonId(pa.getFatherId(), personEntities));
-//                    }
-//                    if(pa.getMotherId() != null){
-//                        p5.add(findByPersonId(pa.getMotherId(), personEntities));
-//                    }
-//                }
-//                ArrayList<PersonEntity> pp5 = new ArrayList<>();
-//                for(PersonEntity pa : p5){
-//                    if(pa.getFatherId() != null){
-//                        pp5.add(findByPersonId(pa.getFatherId(), personEntities));
-//                    }
-//                    if(pa.getMotherId() != null){
-//                        pp5.add(findByPersonId(pa.getMotherId(), personEntities));
-//                    }
-//                }
-//                ArrayList<PersonEntity> ppp5 = new ArrayList<>();
-//                for(PersonEntity pa : pp5){
-//                    if(pa.getFatherId() != null){
-//                        ppp5.add(findByPersonId(pa.getFatherId(), personEntities));
-//                    }
-//                    if(pa.getMotherId() != null){
-//                        ppp5.add(findByPersonId(pa.getMotherId(), personEntities));
-//                    }
-//                }
-//                ArrayList<PersonEntity> pppp = new ArrayList<>();
-//                for(PersonEntity pa : ppp5){
-//                    if(pa.getFatherId() != null){
-//                        pppp.add(findByPersonId(pa.getFatherId(), personEntities));
-//                    }
-//                    if(pa.getMotherId() != null){
-//                        pppp.add(findByPersonId(pa.getMotherId(), personEntities));
-//                    }
-//                }
-//                if(pppp.contains(personInCenter)){
-//                    return "Chụt/Chuỵt";
-//                }
-//                else{
-//                    return "Cháu";
-//                }
-//            default:
-//                return "";
-//        }
-//    }
+
+    public static int isLarger(PersonEntity personInCenter, PersonEntity person2, ArrayList<Integer> personWithCenter, ArrayList<PersonEntity> personEntities, ArrayList<SpouseEntity> spouseEntities, Map<Integer, Integer> fatherSide, Map<Integer, Boolean> intestine){
+
+        if(person2 == null) return 0;
+        if(personInCenter == null) return 0;
+        int rank1 = personInCenter.getPersonRank();
+        int rank2 = person2.getPersonRank();
+        if(rank2 < rank1){ // person2 đi lên
+            if(intestine.get(person2.getPersonId()) == Boolean.FALSE){
+                return isLarger(personInCenter, findByPersonId(getPersonIdInTreeBySpouse(personWithCenter,
+                                                                                        spouseEntities,
+                                                                                        person2.getPersonId(),
+                                                                                        personEntities),
+                                                                personEntities),
+                                            personWithCenter,
+                                            personEntities,
+                                            spouseEntities,
+                                            fatherSide,
+                                            intestine);
+            }
+            if(person2.getFatherId()!=null && intestine.get(person2.getFatherId()) != null && intestine.get(person2.getFatherId()) == Boolean.TRUE){
+                return isLarger(personInCenter, findByPersonId(person2.getFatherId(), personEntities), personWithCenter, personEntities, spouseEntities, fatherSide, intestine);
+            }
+            if(person2.getMotherId()!=null && intestine.get(person2.getMotherId()) != null && intestine.get(person2.getMotherId()) == Boolean.TRUE){
+                return isLarger(personInCenter, findByPersonId(person2.getMotherId(), personEntities), personWithCenter, personEntities, spouseEntities, fatherSide, intestine);
+            }
+        }
+        else if(rank2 > rank1){ //person 1 đi lên
+            int fatherId = getFatherIdByPersonId(personInCenter.getPersonId(), personEntities);
+            int motherId = getMotherIdByPersonId(personInCenter.getPersonId(), personEntities);
+            if(fatherSide.get(person2.getPersonId()) == 1){
+                return isLarger(findByPersonId(fatherId, personEntities), person2, personWithCenter, personEntities, spouseEntities, fatherSide, intestine);
+            }
+            else if(fatherSide.get(person2.getPersonId()) == 2){
+                return isLarger(findByPersonId(motherId, personEntities), person2, personWithCenter, personEntities, spouseEntities, fatherSide, intestine);
+            }
+            return 0;
+        }
+        else{ //cả 2 cùng đi
+            if(personInCenter == person2){ //TRÙNG NHAU
+                return 0;
+            }
+            else if (personInCenter.getGroupChildId() == person2.getGroupChildId()){ //Cùng GROUP
+                if(personInCenter.getSiblingNum() > person2.getSiblingNum()){ // P1 LỚN HƠN P2
+                    return 1;
+                }
+                else{ //P1 NHỎ HƠN P2
+                    return -1;
+                }
+            }
+            else{ //Khác GR
+                if(intestine.get(person2.getPersonId()) == Boolean.FALSE) { //RỂ/DÂU
+                    int wifId = getPersonIdInTreeBySpouse(personWithCenter, spouseEntities, person2.getPersonId(), personEntities);
+                    PersonEntity Wife = findByPersonId(wifId, personEntities);
+                    return isLarger(personInCenter, Wife, personWithCenter, personEntities, spouseEntities, fatherSide, intestine);
+                }
+                else{
+                    PersonEntity f1 = findByPersonId(personInCenter.getFatherId(), personEntities);
+                    PersonEntity m1 = findByPersonId(personInCenter.getMotherId(), personEntities);
+                    PersonEntity f2 = findByPersonId(person2.getFatherId(), personEntities);
+                    PersonEntity m2 = findByPersonId(person2.getMotherId(), personEntities);
+                    return isLarger(f1, f2, personWithCenter, personEntities, spouseEntities, fatherSide, intestine)
+                            + isLarger(f1, m2, personWithCenter, personEntities, spouseEntities, fatherSide, intestine)
+                            + isLarger(m1, f2, personWithCenter, personEntities, spouseEntities, fatherSide, intestine)
+                            + isLarger(m1, m2, personWithCenter, personEntities, spouseEntities, fatherSide, intestine);
+                }
+            }
+        }
+        return 0;
+    }
+    public static String getVocative(PersonEntity personInCenter, PersonEntity person2, ArrayList<Integer> personWithCenter, ArrayList<PersonEntity> personEntities, ArrayList<SpouseEntity> spouseEntities, Map<Integer, Integer> fatherSide, Map<Integer, Boolean> intestine){
+        if(personInCenter == null || person2 == null) return "";
+        int rank1 = personInCenter.getPersonRank();
+        int rank2 = person2.getPersonRank();
+        int x = rank1 - rank2;
+        switch (x){
+            case -7:
+                return "Tiên tổ";
+            case -6:
+                return "Tiên tổ";
+            case -5:
+                return "Tiên tổ";
+            case -4:
+                return "Kỵ";
+            case -3:
+                return "Cố";
+            case -2:
+                if(person2.getPersonGender()){
+                    return "Ông";
+                }
+                return "Bà";
+            case -1:
+                if(personInCenter.getFatherId() == person2.getPersonId()) return "Bố";
+                else if (personInCenter.getMotherId() == person2.getPersonId()) return "Mẹ";
+                else{
+                    if(isLarger(personInCenter, person2, personWithCenter, personEntities, spouseEntities, fatherSide, intestine) > 0) return "Bác";
+                    else if(isLarger(personInCenter, person2, personWithCenter, personEntities, spouseEntities, fatherSide, intestine) < 0){
+                        if(fatherSide.get(person2.getPersonId()) == 2){
+                            if(!personWithCenter.contains(person2.getFatherId()) && !personWithCenter.contains(person2.getMotherId())){
+                                if(person2.getPersonGender()) return "Chú";
+                                else return "Mợ";
+                            }
+                            else{
+                                if(!person2.getPersonGender()) return "Dì";
+                                else return "Cậu";
+                            }
+                        }
+                        if(fatherSide.get(person2.getPersonId()) == 1){
+                            if(!personWithCenter.contains(person2.getFatherId()) && !personWithCenter.contains(person2.getMotherId())){
+                                if(person2.getPersonGender()) return "Chú";
+                                else return "Thím";
+                            }
+                            else{
+                                if(!person2.getPersonGender()) return "Cô";
+                                else return "Chú";
+                            }
+                        }
+                    }
+                    return "";//bố, mẹ, bác, cô, dì, chú
+                }
+            case 0:
+                if(personInCenter.getGroupChildId() == person2.getGroupChildId()){
+                    if(personInCenter.getSiblingNum() < person2.getSiblingNum()){
+                        return "Em";
+                    }
+                    else if (personInCenter.getSiblingNum() > person2.getSiblingNum()){
+                        if(!person2.getPersonGender()){
+                            return "Chị";
+                        }
+                        else{
+                            return "Anh";
+                        }
+                    }
+                    else{
+                        return "Tôi";
+                    }
+                }
+                else{
+                    if(getPersonIdBySpouseId(spouseEntities, personInCenter.getPersonId(), personEntities).contains(person2.getPersonId())){
+                        if(person2.getPersonGender()){
+                            return "Chồng";
+                        }
+                        else{
+                            return "Vợ";
+                        }
+                    }
+                    if(isLarger(personInCenter, person2, personWithCenter, personEntities, spouseEntities, fatherSide, intestine) > 0){
+                        if(person2.getPersonGender()){
+                            return "Chị";
+                        }
+                        else{
+                            return "Anh";
+                        }
+                    }
+                    else if(isLarger(personInCenter, person2, personWithCenter, personEntities, spouseEntities, fatherSide, intestine) < 0){
+                        return "Em";
+                    }
+                    else{
+                        return "";
+                    }
+                }
+            case 1:
+                if((person2.getFatherId() != null && person2.getFatherId() == personInCenter.getPersonId()) || (person2.getMotherId() != null && person2.getMotherId() == personInCenter.getPersonId())){
+                    return "Con";
+                }
+                PersonEntity p2 = findByPersonId(getPersonIdInTreeBySpouse(personWithCenter, spouseEntities, person2.getPersonId(), personEntities), personEntities);
+                if(p2 == null) return "Cháu";
+                if((p2.getFatherId() != null && p2.getFatherId() == personInCenter.getPersonId()) || (p2.getMotherId() != null && p2.getMotherId() == personInCenter.getPersonId())){
+                    if(person2.getPersonGender()){
+                        return "Con Rể";
+                    }
+                    else {
+                        return "Con dâu";
+                    }
+                }
+                return "Cháu"; //Con, cháu
+            case 2:
+                return "Cháu"; //cháu
+            case 3:
+                ArrayList<PersonEntity> parents = new ArrayList<>();
+                if(person2.getFatherId() != null){
+                    parents.add(findByPersonId(person2.getFatherId(), personEntities));
+                }
+                if(person2.getMotherId() != null){
+                    parents.add(findByPersonId(person2.getMotherId(), personEntities));
+                }
+                ArrayList<PersonEntity> p = new ArrayList<>();
+                for(PersonEntity pa : parents){
+                    if(pa.getFatherId() != null){
+                        p.add(findByPersonId(pa.getFatherId(), personEntities));
+                    }
+                    if(pa.getMotherId() != null){
+                        p.add(findByPersonId(pa.getMotherId(), personEntities));
+                    }
+                }
+                ArrayList<PersonEntity> pp = new ArrayList<>();
+                for(PersonEntity pa : p){
+                    if(pa.getFatherId() != null){
+                        pp.add(findByPersonId(pa.getFatherId(), personEntities));
+                    }
+                    if(pa.getMotherId() != null){
+                        pp.add(findByPersonId(pa.getMotherId(), personEntities));
+                    }
+                }
+
+                if(pp.contains(personInCenter)){
+                    return "Chắt";
+                }
+                else{
+                    return "Cháu";
+                }
+            case 4:
+                ArrayList<PersonEntity> parents4 = new ArrayList<>();
+                if(person2.getFatherId() != null){
+                    parents4.add(findByPersonId(person2.getFatherId(), personEntities));
+                }
+                if(person2.getMotherId() != null){
+                    parents4.add(findByPersonId(person2.getMotherId(), personEntities));
+                }
+
+                ArrayList<PersonEntity> p4 = new ArrayList<>();
+                for(PersonEntity pa : parents4){
+                    if(pa.getFatherId() != null){
+                        p4.add(findByPersonId(pa.getFatherId(), personEntities));
+                    }
+                    if(pa.getMotherId() != null){
+                        p4.add(findByPersonId(pa.getMotherId(), personEntities));
+                    }
+                }
+                ArrayList<PersonEntity> pp4 = new ArrayList<>();
+                for(PersonEntity pa : p4){
+                    if(pa.getFatherId() != null){
+                        pp4.add(findByPersonId(pa.getFatherId(), personEntities));
+                    }
+                    if(pa.getMotherId() != null){
+                        pp4.add(findByPersonId(pa.getMotherId(), personEntities));
+                    }
+                }
+                ArrayList<PersonEntity> ppp4 = new ArrayList<>();
+                for(PersonEntity pa : pp4){
+                    if(pa.getFatherId() != null){
+                        ppp4.add(findByPersonId(pa.getFatherId(), personEntities));
+                    }
+                    if(pa.getMotherId() != null){
+                        ppp4.add(findByPersonId(pa.getMotherId(), personEntities));
+                    }
+                }
+                if(ppp4.contains(personInCenter)){
+                    return "Chút/Chít";
+                }
+                else{
+                    return "Cháu";
+                }
+            case 5:
+                ArrayList<PersonEntity> parents5 = new ArrayList<>();
+                if(person2.getFatherId() != null){
+                    parents5.add(findByPersonId(person2.getFatherId(), personEntities));
+                }
+                if(person2.getMotherId() != null){
+                    parents5.add(findByPersonId(person2.getMotherId(), personEntities));
+                }
+
+                ArrayList<PersonEntity> p5 = new ArrayList<>();
+                for(PersonEntity pa : parents5){
+                    if(pa.getFatherId() != null){
+                        p5.add(findByPersonId(pa.getFatherId(), personEntities));
+                    }
+                    if(pa.getMotherId() != null){
+                        p5.add(findByPersonId(pa.getMotherId(), personEntities));
+                    }
+                }
+                ArrayList<PersonEntity> pp5 = new ArrayList<>();
+                for(PersonEntity pa : p5){
+                    if(pa.getFatherId() != null){
+                        pp5.add(findByPersonId(pa.getFatherId(), personEntities));
+                    }
+                    if(pa.getMotherId() != null){
+                        pp5.add(findByPersonId(pa.getMotherId(), personEntities));
+                    }
+                }
+                ArrayList<PersonEntity> ppp5 = new ArrayList<>();
+                for(PersonEntity pa : pp5){
+                    if(pa.getFatherId() != null){
+                        ppp5.add(findByPersonId(pa.getFatherId(), personEntities));
+                    }
+                    if(pa.getMotherId() != null){
+                        ppp5.add(findByPersonId(pa.getMotherId(), personEntities));
+                    }
+                }
+                ArrayList<PersonEntity> pppp = new ArrayList<>();
+                for(PersonEntity pa : ppp5){
+                    if(pa.getFatherId() != null){
+                        pppp.add(findByPersonId(pa.getFatherId(), personEntities));
+                    }
+                    if(pa.getMotherId() != null){
+                        pppp.add(findByPersonId(pa.getMotherId(), personEntities));
+                    }
+                }
+                if(pppp.contains(personInCenter)){
+                    return "Chụt/Chuỵt";
+                }
+                else{
+                    return "Cháu";
+                }
+            default:
+                return "";
+        }
+    }
     public static ArrayList<Integer> getPersonIdBySpouseId(ArrayList<SpouseEntity> listSpouse, int personId, ArrayList<PersonEntity> personEntities){
         ArrayList<Integer> res = new ArrayList<Integer>();
         for(int i = 0; i < listSpouse.size(); i++){
@@ -451,12 +519,14 @@ public class GetPersonByCenter {
         }
     }
     public static PersonInfoDisplay getInfor(ArrayList<Integer> personsWithCenter,
-                                             int personId, ArrayList<PersonEntity> persons,
+                                             int personId,
+                                             ArrayList<PersonEntity> persons,
                                              ArrayList<SpouseEntity> spouses,
                                              ArrayList<PersonInfoDisplay> apiDisplay,
                                              ArrayList<SideDto> personWithSides,
                                              int personCenterId,
-                                             Map<Integer, Integer> fatherSide){
+                                             Map<Integer, Integer> fatherSide,
+                                             Map<Integer, Boolean> intestine){
         PersonEntity person1 = persons.stream().filter(person -> person.getPersonId() == personId).findFirst().orElse(null);
         SideDto personSide = personWithSides.stream().filter(s -> s.getPersonId() == personId).findFirst().orElse(null);
         String side = "";
@@ -488,7 +558,10 @@ public class GetPersonByCenter {
             }
         }
         PersonEntity personCenter = persons.stream().filter(person -> person.getPersonId() == personCenterId).findFirst().orElse(null);
-        String vocative = getVocative(personCenter, person1, personsWithCenter);
+
+        System.out.println(personCenter.getPersonId() + "    " + (personCenter.getPersonRank() - person1.getPersonRank()) + "   " + person1.getPersonId());
+
+        String vocative = getVocative(personCenter, person1, personsWithCenter, persons, spouses, fatherSide, intestine);
         PersonDisplayDto p = PersonDisplayDto.create(person1.getPersonName(), person1.getPersonGender()?"Male":"Female", person1.getPersonDob(), person1.getPersonDod(), person1.getParentsId(), person1.getFamilyTreeId(), person1.getPersonStatus(), person1.getPersonRank(), person1.getFatherId(), person1.getMotherId(), person1.getPersonImage(), person1.getSiblingNum(),person1.getGroupChildId());
         int isFatherSide = fatherSide.get(personId);
         if(count > 1){
@@ -509,16 +582,9 @@ public class GetPersonByCenter {
         Map<Integer, Integer> fatherSide = new HashMap<>();
         Map<Integer, Boolean> intestine = new HashMap<>();
         getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide, intestine);
-//        for(int j:personIdInTheMainTree){
-//            System.out.print(j + " ");
-//        }
-//        System.out.println();
+
         ArrayList<Integer> personsWithCenter = new ArrayList<>(personIdInTheMainTree);
         getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine);
-//        for(int j:personsWithCenter){
-//            System.out.print(j + " ");
-//        }
-//        System.out.println();
 
         Set<Integer> sett = new LinkedHashSet<>();
         sett.addAll(personsWithCenter);
@@ -527,8 +593,14 @@ public class GetPersonByCenter {
 
         ArrayList<PersonInfoDisplay> apiDisplays = new ArrayList<PersonInfoDisplay>();
         for(int i = 0; i < personsWithCenter.size(); i++){
-            apiDisplays.add(getInfor(personsWithCenter, personsWithCenter.get(i), listPerson, listSpouse, apiDisplays, personWithSide, personCenterId, fatherSide));
+            apiDisplays.add(getInfor(personsWithCenter, personsWithCenter.get(i), listPerson, listSpouse, apiDisplays, personWithSide, personCenterId, fatherSide, intestine));
         }
+        Collections.sort(apiDisplays, new Comparator<PersonInfoDisplay>() {
+            @Override
+            public int compare(PersonInfoDisplay o1, PersonInfoDisplay o2) {
+                return o1.getId() - o2.getId();
+            }
+        });
         return apiDisplays;
     }
     public static PersonInfoSimplifiedInfoDis getInforSimplified(ArrayList<Integer> personsWithCenter,
@@ -537,7 +609,8 @@ public class GetPersonByCenter {
                                                                  ArrayList<PersonInfoSimplifiedInfoDis> apiDisplay,
                                                                  ArrayList<SideDto> personWithSides,
                                                                  int personCenterId,
-                                                                 Map<Integer, Integer> fatherSide){
+                                                                 Map<Integer, Integer> fatherSide,
+                                                                 Map<Integer, Boolean> intestine){
         PersonEntity person1 = persons.stream().filter(person -> person.getPersonId() == personId).findFirst().orElse(null);
         SideDto personSide = personWithSides.stream().filter(s -> s.getPersonId() == personId).findFirst().orElse(null);
         String side = "";
@@ -569,7 +642,9 @@ public class GetPersonByCenter {
             }
         }
         PersonEntity personCenter = persons.stream().filter(person -> person.getPersonId() == personCenterId).findFirst().orElse(null);
-        String vocative = getVocative(personCenter, person1, personsWithCenter);
+        //String vocative = getVocative(personCenter, person1, personsWithCenter);
+        String vocative = getVocative(personCenter, person1, personsWithCenter, persons, spouses, fatherSide, intestine);
+
         int isFatherSide = fatherSide.get(personId);
         PersonSimplifiedInfo p = PersonSimplifiedInfo.create(person1.getPersonName(),
                                                                 person1.getPersonGender()?"Male":"Female",
@@ -601,9 +676,14 @@ public class GetPersonByCenter {
 
         ArrayList<PersonInfoSimplifiedInfoDis> apiDisplays = new ArrayList<PersonInfoSimplifiedInfoDis>();
         for(int i = 0; i < personsWithCenter.size(); i++){
-            apiDisplays.add(getInforSimplified(personsWithCenter, personsWithCenter.get(i), listPerson, listSpouse, apiDisplays, personWithSide, personCenterId, fatherSide));
+            apiDisplays.add(getInforSimplified(personsWithCenter, personsWithCenter.get(i), listPerson, listSpouse, apiDisplays, personWithSide, personCenterId, fatherSide, intestine));
         }
-
+        Collections.sort(apiDisplays, new Comparator<PersonInfoSimplifiedInfoDis>() {
+            @Override
+            public int compare(PersonInfoSimplifiedInfoDis o1, PersonInfoSimplifiedInfoDis o2) {
+                return o1.getId() - o2.getId();
+            }
+        });
         return apiDisplays;
     }
     public static Map<Integer, PersonDataV2> getDataV2(int familyTreeId, int personCenterId, ArrayList<SpouseEntity> listSpouse, ArrayList<PersonEntity> listPerson){
@@ -666,5 +746,90 @@ public class GetPersonByCenter {
             }
         });
         return res;
+    }
+    public static PersonInfoDisplay getInfor2(ArrayList<Integer> personsWithCenter,
+                                             int personId,
+                                             ArrayList<PersonEntity> persons,
+                                             ArrayList<SpouseEntity> spouses,
+                                             ArrayList<PersonInfoDisplay> apiDisplay,
+                                             ArrayList<SideDto> personWithSides,
+                                             int personCenterId,
+                                             Map<Integer, Integer> fatherSide,
+                                             Map<Integer, Boolean> intestine){
+        PersonEntity person1 = persons.stream().filter(person -> person.getPersonId() == personId).findFirst().orElse(null);
+        SideDto personSide = personWithSides.stream().filter(s -> s.getPersonId() == personId).findFirst().orElse(null);
+        String side = "";
+        if(personSide != null)
+            side = personSide.getSide();
+        PersonInfoDisplay api;
+        ArrayList<Integer> spouseIds = getSpouseIds(spouses, personId);
+        ArrayList<Integer> personBySpouse = getPersonIdBySpouseId(spouses, personId, persons);
+        int grId1 = personId;
+        int grId2 = personId;
+        int count = 0;
+        for(int i = 0; i < personBySpouse.size(); i++){
+            int person2 = personBySpouse.get(i);
+            PersonInfoDisplay apiCheck = apiDisplay.stream().filter(apid -> apid.getGroupId() == personId).findFirst().orElse(null);
+            if(apiCheck == null){
+                for(int j = 0; j < personsWithCenter.size(); j++){
+                    if(personBySpouse.get(i) == personsWithCenter.get(j)){
+                        grId1 = person2;
+                        grId2 = personId;
+                        count++;
+                        break;
+                    }
+                }
+            }
+            else{
+                grId2 = apiCheck.getGroupId();
+                grId1 = apiCheck.getGroupId();
+                count = 199203;
+            }
+        }
+        PersonEntity personCenter = persons.stream().filter(person -> person.getPersonId() == personCenterId).findFirst().orElse(null);
+
+        //  System.out.println(personCenter.getPersonId() + "    " + (personCenter.getPersonRank() - person1.getPersonRank()) + "   " + person1.getPersonId());
+
+        String vocative = getVocative(personCenter, person1, personsWithCenter, persons, spouses, fatherSide, intestine);
+        PersonDisplayDto p = PersonDisplayDto.create(person1.getPersonName(), person1.getPersonGender()?"Male":"Female", person1.getPersonDob(), person1.getPersonDod(), person1.getParentsId(), person1.getFamilyTreeId(), person1.getPersonStatus(), person1.getPersonRank(), person1.getFatherId(), person1.getMotherId(), person1.getPersonImage(), person1.getSiblingNum(),person1.getGroupChildId());
+        int isFatherSide = fatherSide.get(personId);
+        if(count > 1){
+            api =  PersonInfoDisplay.create(personId, person1.getParentsId(),p, spouseIds, grId2, side, person1.getPersonRank(), isFatherSide, vocative);
+        }
+        else{
+            api =  PersonInfoDisplay.create(personId, person1.getParentsId(),p, spouseIds, grId1, side, person1.getPersonRank(), isFatherSide, vocative);
+        }
+        return api;
+    }
+    public static ArrayList<PersonInfoDisplay> getPersonSimplified2(int familyTreeId, int personCenterId, ArrayList<SpouseEntity> listSpouse, ArrayList<PersonEntity> listPerson){
+        ArrayList<Integer> personIdInTheMainTree = new ArrayList<Integer>();
+        ArrayList<SideDto> personWithSide = new ArrayList<SideDto>();
+        Map<Integer, Integer> fatherSide = new HashMap<>();
+        Map<Integer, Boolean> intestine = new HashMap<>();
+        getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide, intestine);
+
+        ArrayList<Integer> personsWithCenter = new ArrayList<>(personIdInTheMainTree);
+        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine);
+
+        Set<Integer> sett = new LinkedHashSet<>();
+        sett.addAll(personsWithCenter);
+        personsWithCenter.clear();
+        personsWithCenter.addAll(sett);
+
+        ArrayList<PersonInfoDisplay> apiDisplays = new ArrayList<PersonInfoDisplay>();
+        for(int i = 0; i < personsWithCenter.size(); i++){
+            apiDisplays.add(getInfor2(personsWithCenter, personsWithCenter.get(i), listPerson, listSpouse, apiDisplays, personWithSide, personCenterId, fatherSide, intestine));
+        }
+        Collections.sort(apiDisplays, new Comparator<PersonInfoDisplay>() {
+            @Override
+            public int compare(PersonInfoDisplay o1, PersonInfoDisplay o2) {
+                return o1.getId() - o2.getId();
+            }
+        });
+        Set<Integer> settintestine = intestine.keySet();
+        for (Integer key : settintestine) {
+            System.out.println(key + " " + intestine.get(key));
+        }
+        return apiDisplays;
     }
 }

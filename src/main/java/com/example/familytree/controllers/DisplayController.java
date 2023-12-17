@@ -8,6 +8,7 @@ import com.example.familytree.models.response.PersonInfoSimplifiedInfoDis;
 import com.example.familytree.repositories.PersonRepo;
 import com.example.familytree.repositories.SpouseRepo;
 import com.example.familytree.utils.GetPersonByCenter;
+import com.example.familytree.utils.SearchPersonByName;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ public class DisplayController {
     private final PersonRepo personRepo;
     private final SpouseRepo spouseRepo;
     @GetMapping(path = "/test2")
-    ArrayList<PersonInfoSimplifiedInfoDis> a(@RequestParam int ft,
+    ArrayList<PersonInfoDisplay> a(@RequestParam int ft,
                                              @RequestParam int pid){
         //ft: familytreeid
         //pid: personid
@@ -46,8 +47,8 @@ public class DisplayController {
         set.addAll(listSpouse);
         listSpouse.clear();
         listSpouse.addAll(set);
-        //return GetPersonByCenter.GetPersonByCenterDis(ft, pid, listSpouse, listPerson); //Đầy đủ thông tin ArrayList<PersonInfoDisplay>
-        return GetPersonByCenter.getPersonSimplified(ft, pid, listSpouse, listPerson); //Giản lược ArrayList<PersonInfoSimplifiedInfoDis>
+        return GetPersonByCenter.getPersonSimplified2(ft, pid, listSpouse, listPerson); //Đầy đủ thông tin ArrayList<PersonInfoDisplay>
+        //return GetPersonByCenter.getPersonSimplified2(ft, pid, listSpouse, listPerson); //Giản lược ArrayList<PersonInfoSimplifiedInfoDis>
     }
     @GetMapping("/test3")
     Map<String, ArrayList<String>> b(){
@@ -102,5 +103,17 @@ public class DisplayController {
         listSpouse.clear();
         listSpouse.addAll(set);
         return GetPersonByCenter.sharingList(ft, pid, listSpouse, listPerson, side); //side = 3: ALL, side = 1: Lấy bên Ngoại, side = 2: Lấy bên nội
+    }
+
+    @GetMapping(path = "/test6")
+    public List<PersonEntity> searchPerson(@RequestParam int familyTreeId, @RequestParam String keyword){
+        ArrayList<PersonEntity> list =  new ArrayList<>(personRepo.findByFamilyTreeId(familyTreeId));
+        ArrayList<PersonEntity> listPerson = new ArrayList<>();
+        for(PersonEntity p : list){
+            if(!p.getPersonIsDeleted()){ //chua xoa
+                listPerson.add(p);
+            }
+        }
+        return SearchPersonByName.searchPerson(listPerson, keyword);
     }
 }
