@@ -8,21 +8,16 @@ import com.example.familytree.models.response.PersonInfoSimplifiedInfoDis;
 import com.example.familytree.repositories.PersonRepo;
 import com.example.familytree.repositories.SpouseRepo;
 import com.example.familytree.services.FamilyTreeService;
-import com.example.familytree.shareds.Constants;
 import com.example.familytree.utils.GetPersonByCenter;
-import jakarta.persistence.Convert;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
-import java.sql.PreparedStatement;
 import java.util.*;
 
 @CrossOrigin(origins = "*")
@@ -32,7 +27,7 @@ public class DisplayController {
     private final PersonRepo personRepo;
     private final SpouseRepo spouseRepo;
     private final FamilyTreeService familyTreeService;
-    private final JdbcTemplate jdbcTemplate;
+    private final EntityManager em;
 
     @GetMapping(path = "/test2")
     List<PersonInfoSimplifiedInfoDis> a(@RequestParam int ft,
@@ -108,41 +103,49 @@ public class DisplayController {
     }
     @GetMapping("/test7")
     List<SpouseEntity> s(){
-//        String jqlON = "SET IDENTITY_INSERT Person ON";
-//        jdbcTemplate.execute(jqlON);
-//        String sql = "INSERT INTO person(person_id, person_name, person_gender, person_DOB, person_job, person_religion, person_ethnic, person_DOD, person_address, parents_id, family_tree_id, person_status, person_rank, person_description, person_story, father_id, mother_id, person_is_deleted, person_created_at, person_updated_at, person_deleted_at, person_image, sibling_num, group_child_id ) " +
-//                    "values(100, 'Nguoi 100', 1, 8, 1)";
-//        jdbcTemplate.execute(sql);
-//        String jqlOFF = "SET IDENTITY_INSERT Person OFF";
-//        jdbcTemplate.execute(jqlOFF);
-        PersonEntity person = personRepo.findFirstByPersonId(20);
-        int range = 21;
 
-        String jqlON = "SET IDENTITY_INSERT Person ON";
-        jdbcTemplate.execute(jqlON);
-        int personId = person.getPersonId() + range;
-        int groupChild = person.getGroupChildId() + range;
-        int gender = person.getPersonGender() ? 1 : 0;
+        em.createNativeQuery("SET IDENTITY_INSERT Person OFF").executeUpdate();
 
-
-
-        String sql = "INSERT INTO person(person_id, person_name, person_gender, person_DOB, person_job, person_religion, person_ethnic, person_DOD, person_address, family_tree_id, person_status, person_rank, person_description, person_story, person_is_deleted, person_image, sibling_num, group_child_id) " +
-                "VALUES(" + personId + ",N'" + person.getPersonName() + "'," + gender + ",'" + person.getPersonDob() + "',N'" + person.getPersonJob() + "',N'" + person.getPersonReligion() + "',N'" + person.getPersonEthnic() + "','" + person.getPersonDod() + "',N'" + person.getPersonAddress() + "'," + 7 + "," + 1 + "," + person.getPersonRank() + ",N'" + person.getPersonDescription() + "',N'" + person.getPersonStory() + "'," + 0 + ",'" +  person.getPersonImage() + "'," + person.getSiblingNum() + "," + groupChild + ")";
-        jdbcTemplate.execute(sql);
-        String jqlOFF = "SET IDENTITY_INSERT Person OFF";
-        jdbcTemplate.execute(jqlOFF);
-
-
-        PersonEntity personCurrent = personRepo.findFirstByPersonId(personId);
-        if (person.getFatherId() != null){
-            personCurrent.setFatherId(person.getFatherId() + range);
-        }
-        if (person.getMotherId() != null){
-            personCurrent.setMotherId(person.getMotherId() + range);
-        }
-        personRepo.save(personCurrent);
-
-
+        PersonEntity newPerson = PersonEntity.create(
+            100,
+                "Người thứ 100",
+                false,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                true,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        personRepo.save(newPerson);
+//        em.persist(newPerson);
+        em.createNativeQuery("SET IDENTITY_INSERT Person ON").executeUpdate();
         return null;
+    }
+    @GetMapping(path = "/test9") //Tìm kiếm
+    public List<PersonEntity> searchPerson(@RequestParam int familyTreeId, @RequestParam(defaultValue = "") String keyword){
+        ArrayList<PersonEntity> list =  new ArrayList<>(personRepo.findByFamilyTreeId(familyTreeId));
+        ArrayList<PersonEntity> listPerson = new ArrayList<>();
+        for(PersonEntity p : list){
+            if(!p.getPersonIsDeleted()){ //chua xoa
+                listPerson.add(p);
+            }
+        }
+        return SearchPersonByName.searchPerson(listPerson, keyword);
     }
 }
