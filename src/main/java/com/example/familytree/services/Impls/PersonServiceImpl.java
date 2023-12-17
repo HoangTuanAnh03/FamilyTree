@@ -11,13 +11,11 @@ import com.example.familytree.services.PersonService;
 import com.example.familytree.shareds.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -25,9 +23,10 @@ public class PersonServiceImpl implements PersonService {
 
     private final PersonRepo personRepo;
     private final SpouseRepo spouseRepo;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public InfoAddPersonResponse getInfoPerson(int personId) {
+    public InfoAddPersonResponse getInfoPerson(int personId, String option) {
         PersonEntity personById = personRepo.findFirstByPersonId(personId);
         List<Integer> wife = new ArrayList<>();
         List<Integer> husband = new ArrayList<>();
@@ -67,14 +66,22 @@ public class PersonServiceImpl implements PersonService {
                 children.add(personEntity.getPersonId());
             }
         }
-
+        // Hiển thị thông tin cá nhân theo option
         InfoAddPersonResponse infoAddPersonResponse = new InfoAddPersonResponse();
-        BeanUtils.copyProperties(personById, infoAddPersonResponse);
+        infoAddPersonResponse.setPersonName(personById.getPersonName());
+        infoAddPersonResponse.setParentsId(personById.getParentsId());
+        infoAddPersonResponse.setFatherId(personById.getFatherId());
+        infoAddPersonResponse.setMotherId(personById.getMotherId());
+        infoAddPersonResponse.setPersonImage(personById.getPersonImage());
         infoAddPersonResponse.setPersonGender(personById.getPersonGender() ? "Nam" : "Nữ");
         infoAddPersonResponse.setWife(wife);
         infoAddPersonResponse.setHusband(husband);
         infoAddPersonResponse.setSibling(sibling);
         infoAddPersonResponse.setChildren(children);
+        if (option == "full") {
+            BeanUtils.copyProperties(personById, infoAddPersonResponse);
+        }
+
 
         return infoAddPersonResponse;
     }
@@ -130,6 +137,79 @@ public class PersonServiceImpl implements PersonService {
                 personDto.getGroupChildId()
         );
         personRepo.save(newPerson);
+    }
+
+    @Override
+    @Transactional
+    public PersonEntity createPersonVirtual(int fid, boolean gender) {
+        PersonEntity personVirtual = PersonEntity.create(
+                0,
+                "PersonName",
+                gender,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                fid,
+                true,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        personRepo.save(personVirtual);
+        return personVirtual;
+    }
+
+    @Override
+    @Transactional
+    public void createPersonCopyVirtual(int fid, int pid, boolean gender) {
+        String jqlON = "SET IDENTITY_INSERT Person ON";
+        jdbcTemplate.execute(jqlON);
+        String sql = "INSERT INTO person(person_id, person_name, person_gender, family_tree_id, person_status) " +
+                                "values(" + pid + ", 'PersonName', 1," + fid + ", 1)";
+//        String sql = "INSERT INTO person(person_id, person_name, person_gender, person_DOB, person_job, person_religion, person_ethnic, person_DOD, person_address, parents_id, family_tree_id, person_status, person_rank, person_description, person_story, father_id, mother_id, person_is_deleted, person_created_at, person_updated_at, person_deleted_at, person_image, sibling_num, group_child_id ) " +
+//                "values(100, 'Nguoi 100', 1, 8, 1)";
+        jdbcTemplate.execute(sql);
+        String jqlOFF = "SET IDENTITY_INSERT Person OFF";
+        jdbcTemplate.execute(jqlOFF);
+    }
+
+    @Override
+    @Transactional
+    public void createPersonCopy(PersonEntity person, int fid, int range) {
+        String jqlON = "SET IDENTITY_INSERT Person ON";
+        jdbcTemplate.execute(jqlON);
+        int personId = person.getPersonId() + range;
+        int groupChild = person.getGroupChildId() + range;
+        int gender = person.getPersonGender() ? 1 : 0;
+
+        String sql = "INSERT INTO person(person_id, person_name, person_gender, person_DOB, person_job, person_religion, person_ethnic, person_DOD, person_address, family_tree_id, person_status, person_rank, person_description, person_story, person_is_deleted, person_image, sibling_num, group_child_id) " +
+                "VALUES(" + personId + ",N'" + person.getPersonName() + "'," + gender + ",'" + person.getPersonDob() + "',N'" + person.getPersonJob() + "',N'" + person.getPersonReligion() + "',N'" + person.getPersonEthnic() + "','" + person.getPersonDod() + "',N'" + person.getPersonAddress() + "'," + 7 + "," + 1 + "," + person.getPersonRank() + ",N'" + person.getPersonDescription() + "',N'" + person.getPersonStory() + "'," + 0 + ",'" +  person.getPersonImage() + "'," + person.getSiblingNum() + "," + groupChild + ")";
+        jdbcTemplate.execute(sql);
+        String jqlOFF = "SET IDENTITY_INSERT Person OFF";
+        jdbcTemplate.execute(jqlOFF);
+
+        // Set lại fatherId và motherId
+        PersonEntity personCurrent = personRepo.findFirstByPersonId(personId);
+        if (person.getFatherId() != null){
+            personCurrent.setFatherId(person.getFatherId() + range);
+        }
+        if (person.getMotherId() != null){
+            personCurrent.setMotherId(person.getMotherId() + range);
+        }
+        personRepo.save(personCurrent);
     }
 
     @Override

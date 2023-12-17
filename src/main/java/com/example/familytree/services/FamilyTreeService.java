@@ -32,5 +32,6 @@ public interface FamilyTreeService {
 
     List<PersonInfoSimplifiedInfoDis> getPersonSimplified(int pid);
 
-    Map<Integer, PersonDataV2> getDataV2(int pid);
+    Map<Integer, PersonDataV2> getDataV2(int fid,int pid, int userId);
+
 }

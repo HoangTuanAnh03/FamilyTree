@@ -51,12 +51,14 @@ public class SecurityConfig {
                                 .requestMatchers("/person/**").authenticated()
 //                                .requestMatchers("/sign-out").authenticated()
                                 .requestMatchers("/familyTree/**").authenticated()
+
 //                                .requestMatchers("/familytree-api-docs",
 //                                        "/familytree-documentation",
 //                                        "/swagger-ui/**").permitAll()
 //                                .requestMatchers("/sign-in",
 //                                "/users/forgetPassword/**",
 //                                "/users/register/**").permitAll()
+//                                .requestMatchers("/person/getInfo").permitAll()
                                 .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

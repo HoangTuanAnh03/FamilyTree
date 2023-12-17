@@ -5,6 +5,7 @@ import com.example.familytree.models.dto.PersonDto;
 import com.example.familytree.models.dto.UpdatePersonDto;
 import com.example.familytree.models.response.InfoAddPersonResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,10 +19,19 @@ public interface PersonService {
     PersonEntity createSpouse(PersonDto personDto, int personID);
 
 
-    InfoAddPersonResponse getInfoPerson(int personId);
+    InfoAddPersonResponse getInfoPerson(int personId, String option);
 
     List<PersonEntity> getListChild(int fatherId, int motherId);
     void createPerson(PersonDto personDto);
+
+    @Transactional
+    PersonEntity createPersonVirtual(int fid, boolean gender);
+
+    @Transactional
+    void createPersonCopyVirtual(int fid, int pid, boolean gender);
+
+    @Transactional
+    void createPersonCopy(PersonEntity personEntity, int fid, int range);
 
     void updatePerson(UpdatePersonDto updatePersonDto);
 

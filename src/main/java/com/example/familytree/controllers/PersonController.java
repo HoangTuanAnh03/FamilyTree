@@ -32,9 +32,9 @@ public class PersonController {
     private final FamilyTreeRepo familyTreeRepo;
 
     @GetMapping(path = "/getInfo")
-    public ResponseEntity<ApiResult<?>> getInfoPerson(@Valid @RequestParam int personId, HttpServletRequest request) {
+    public ResponseEntity<ApiResult<?>> getInfoPerson(@RequestParam int personId, HttpServletRequest request) {
         ApiResult<?> result;
-        // ktra người dùng có trong cây k
+        String option = "base";
         PersonEntity personByPersonId = personRepo.findFirstByPersonId(personId);
         if (personByPersonId == null){
             result = ApiResult.create(HttpStatus.NOT_FOUND, MessageFormat.format(Constants.NOT_FOUND_PERSON, personId), null);
@@ -44,12 +44,11 @@ public class PersonController {
         String username = BearerTokenUtil.getUserName(request);
         UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
 
-        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(familyTreeIdByPerson, userByEmail.getUserId(), true)) {
-            result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE, userByEmail.getUserId(), personId), null);
-            return ResponseEntity.ok(result);
+        if (familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(familyTreeIdByPerson, userByEmail.getUserId(), true)) {
+            option = "full";
         }
 
-        result = ApiResult.create(HttpStatus.OK, Constants.GET_INFO_PERSON_SUCCESS, personService.getInfoPerson(personId));
+        result = ApiResult.create(HttpStatus.OK, Constants.GET_INFO_PERSON_SUCCESS, personService.getInfoPerson(personId, option));
         return ResponseEntity.ok(result);
     }
 
@@ -64,7 +63,6 @@ public class PersonController {
             result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE, userByEmail.getUserId()), null);
             return ResponseEntity.ok(result);
         }
-
         /* Kiểm tra xem cây đó phải chưa có ai mới thêm được */
         if(personRepo.existsByFamilyTreeId(personDto.getFamilyTreeId())){
             result = ApiResult.create(HttpStatus.BAD_REQUEST, "Cây đã có Person không thể tạo người đầu tiên nữa!", personDto);
@@ -73,7 +71,7 @@ public class PersonController {
 
         // Thêm vào bảng Person
         PersonEntity newPerson = personService.createFirstPerson(personDto);
-        // Thêm personID đầu tiên trong cây vào bảng familyTree
+        // Cập nhật personId mặc định là người đầu trong cây
         FamilyTreeEntity familyTree = familyTreeRepo.findFirstByFamilyTreeId(personDto.getFamilyTreeId());
         familyTree.setPersonId(newPerson.getPersonId());
         familyTreeRepo.save(familyTree);
@@ -84,6 +82,7 @@ public class PersonController {
                 personDto.getPersonGender() ? null : newPerson.getPersonId(),
                 0
         );
+
         spouseRepo.save(spouseByParent);
         result = ApiResult.create(
                 HttpStatus.OK,
