@@ -9,6 +9,7 @@ import com.example.familytree.repositories.PersonRepo;
 import com.example.familytree.repositories.SpouseRepo;
 import com.example.familytree.services.FamilyTreeService;
 import com.example.familytree.utils.GetPersonByCenter;
+import com.example.familytree.utils.SearchPersonByName;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -136,5 +137,16 @@ public class DisplayController {
 //        em.persist(newPerson);
         em.createNativeQuery("SET IDENTITY_INSERT Person ON").executeUpdate();
         return null;
+    }
+    @GetMapping(path = "/test9") //Tìm kiếm
+    public List<PersonEntity> searchPerson(@RequestParam int familyTreeId, @RequestParam(defaultValue = "") String keyword){
+        ArrayList<PersonEntity> list =  new ArrayList<>(personRepo.findByFamilyTreeId(familyTreeId));
+        ArrayList<PersonEntity> listPerson = new ArrayList<>();
+        for(PersonEntity p : list){
+            if(!p.getPersonIsDeleted()){ //chua xoa
+                listPerson.add(p);
+            }
+        }
+        return SearchPersonByName.searchPerson(listPerson, keyword);
     }
 }

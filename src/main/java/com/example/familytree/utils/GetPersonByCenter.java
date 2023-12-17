@@ -200,6 +200,7 @@ public class GetPersonByCenter {
         return 0;
     }
     public static String getVocative(PersonEntity personInCenter, PersonEntity person2, ArrayList<Integer> personWithCenter, ArrayList<PersonEntity> personEntities, ArrayList<SpouseEntity> spouseEntities, Map<Integer, Integer> fatherSide, Map<Integer, Boolean> intestine){
+        if(personInCenter == null || person2 == null) return "";
         int rank1 = personInCenter.getPersonRank();
         int rank2 = person2.getPersonRank();
         int x = rank1 - rank2;
@@ -250,10 +251,10 @@ public class GetPersonByCenter {
                 }
             case 0:
                 if(personInCenter.getGroupChildId() == person2.getGroupChildId()){
-                    if(personInCenter.getSiblingNum() > person2.getSiblingNum()){
+                    if(personInCenter.getSiblingNum() < person2.getSiblingNum()){
                         return "Em";
                     }
-                    else if (personInCenter.getSiblingNum() < person2.getSiblingNum()){
+                    else if (personInCenter.getSiblingNum() > person2.getSiblingNum()){
                         if(!person2.getPersonGender()){
                             return "Chị";
                         }
@@ -268,13 +269,13 @@ public class GetPersonByCenter {
                 else{
                     if(getPersonIdBySpouseId(spouseEntities, personInCenter.getPersonId(), personEntities).contains(person2.getPersonId())){
                         if(person2.getPersonGender()){
-                            return "ANH YÊUUUU";
+                            return "Chồng";
                         }
                         else{
-                            return "EM YÊUUUU";
+                            return "Vợ";
                         }
                     }
-                    if(isLarger(personInCenter, person2, personWithCenter, personEntities, spouseEntities, fatherSide, intestine) < 0){
+                    if(isLarger(personInCenter, person2, personWithCenter, personEntities, spouseEntities, fatherSide, intestine) > 0){
                         if(person2.getPersonGender()){
                             return "Chị";
                         }
@@ -294,6 +295,7 @@ public class GetPersonByCenter {
                     return "Con";
                 }
                 PersonEntity p2 = findByPersonId(getPersonIdInTreeBySpouse(personWithCenter, spouseEntities, person2.getPersonId(), personEntities), personEntities);
+                if(p2 == null) return "Cháu";
                 if((p2.getFatherId() != null && p2.getFatherId() == personInCenter.getPersonId()) || (p2.getMotherId() != null && p2.getMotherId() == personInCenter.getPersonId())){
                     if(person2.getPersonGender()){
                         return "Con Rể";
@@ -469,7 +471,8 @@ public class GetPersonByCenter {
                                  ArrayList<PersonEntity> persons,
                                  ArrayList<SpouseEntity> spouses,
                                  Map<Integer, Integer> fatherSide,
-                                 Map<Integer, Boolean> intestine) {
+                                 Map<Integer, Boolean> intestine,
+                                 Integer centerId) {
         Set<Integer> personTemp = new HashSet<>();
         for (int i = 0; i < personIdInTheMainTree.size(); i++) {
 
@@ -498,22 +501,24 @@ public class GetPersonByCenter {
                 if ((gender == "Male" && person.getFatherId() != null && person.getFatherId().intValue() == personId) || (gender == "Female" && person.getMotherId() != null && person.getMotherId().intValue() == personId)) {
 
                     int childPersonId = person.getPersonId();
-                    personsWithCenter.add(childPersonId);
-                    intestine.putIfAbsent(childPersonId, Boolean.TRUE);
-                    fatherSide.putIfAbsent(childPersonId, isFatherSide);
-                    personTemp.add(childPersonId);
-                    ArrayList<Integer> spousePidList2 = getPersonIdBySpouseId(spouses, childPersonId, persons);
-                    int isFatherSideBySpouse = fatherSide.get(childPersonId);
-                    personsWithCenter.addAll(spousePidList2);
-                    for(int x: spousePidList2){
-                        fatherSide.putIfAbsent(x, isFatherSideBySpouse);
-                        intestine.putIfAbsent(x, Boolean.FALSE);
+                    if(!personIdInTheMainTree.contains(childPersonId) || childPersonId == centerId){
+                        personsWithCenter.add(childPersonId);
+                        intestine.putIfAbsent(childPersonId, Boolean.TRUE);
+                        fatherSide.putIfAbsent(childPersonId, isFatherSide);
+                        personTemp.add(childPersonId);
+                        ArrayList<Integer> spousePidList2 = getPersonIdBySpouseId(spouses, childPersonId, persons);
+                        int isFatherSideBySpouse = fatherSide.get(childPersonId);
+                        personsWithCenter.addAll(spousePidList2);
+                        for(int x: spousePidList2){
+                            fatherSide.putIfAbsent(x, isFatherSideBySpouse);
+                            intestine.putIfAbsent(x, Boolean.FALSE);
+                        }
                     }
                 }
             }
         }
         if (!personTemp.isEmpty()) {
-            getPerson(personsWithCenter, new ArrayList<>(personTemp), persons, spouses, fatherSide, intestine);
+            getPerson(personsWithCenter, new ArrayList<>(personTemp), persons, spouses, fatherSide, intestine, centerId);
         }
     }
     public static PersonInfoDisplay getInfor(ArrayList<Integer> personsWithCenter,
@@ -582,7 +587,7 @@ public class GetPersonByCenter {
         getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide, intestine);
 
         ArrayList<Integer> personsWithCenter = new ArrayList<>(personIdInTheMainTree);
-        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine);
+        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine, personCenterId);
 
         Set<Integer> sett = new LinkedHashSet<>();
         sett.addAll(personsWithCenter);
@@ -665,7 +670,7 @@ public class GetPersonByCenter {
         getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide, intestine);
 
         ArrayList<Integer> personsWithCenter = new ArrayList<>(personIdInTheMainTree);
-        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine);
+        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine, personCenterId);
 
         Set<Integer> sett = new LinkedHashSet<>();
         sett.addAll(personsWithCenter);
@@ -712,7 +717,7 @@ public class GetPersonByCenter {
         getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide, intestine);
 
         ArrayList<Integer> personsWithCenter = new ArrayList<>(personIdInTheMainTree);
-        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine);
+        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine, personCenterId);
 
         Set<Integer> sett = new LinkedHashSet<>();
         sett.addAll(personsWithCenter);
@@ -786,7 +791,7 @@ public class GetPersonByCenter {
         }
         PersonEntity personCenter = persons.stream().filter(person -> person.getPersonId() == personCenterId).findFirst().orElse(null);
 
-        System.out.println(personCenter.getPersonId() + "    " + (personCenter.getPersonRank() - person1.getPersonRank()) + "   " + person1.getPersonId());
+        //  System.out.println(personCenter.getPersonId() + "    " + (personCenter.getPersonRank() - person1.getPersonRank()) + "   " + person1.getPersonId());
 
         String vocative = getVocative(personCenter, person1, personsWithCenter, persons, spouses, fatherSide, intestine);
         PersonDisplayDto p = PersonDisplayDto.create(person1.getPersonName(), person1.getPersonGender()?"Male":"Female", person1.getPersonDob(), person1.getPersonDod(), person1.getParentsId(), person1.getFamilyTreeId(), person1.getPersonStatus(), person1.getPersonRank(), person1.getFatherId(), person1.getMotherId(), person1.getPersonImage(), person1.getSiblingNum(),person1.getGroupChildId());
@@ -807,7 +812,7 @@ public class GetPersonByCenter {
         getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide, intestine);
 
         ArrayList<Integer> personsWithCenter = new ArrayList<>(personIdInTheMainTree);
-        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine);
+        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine, personCenterId);
 
         Set<Integer> sett = new LinkedHashSet<>();
         sett.addAll(personsWithCenter);
@@ -824,6 +829,10 @@ public class GetPersonByCenter {
                 return o1.getId() - o2.getId();
             }
         });
+        Set<Integer> settintestine = intestine.keySet();
+        for (Integer key : settintestine) {
+            System.out.println(key + " " + intestine.get(key));
+        }
         return apiDisplays;
     }
 }
