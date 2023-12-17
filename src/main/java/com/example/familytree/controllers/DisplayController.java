@@ -1,13 +1,19 @@
 package com.example.familytree.controllers;
 
+import com.example.familytree.entities.FamilyTreeUserEntity;
+import com.example.familytree.entities.LinkSharingEntity;
 import com.example.familytree.entities.PersonEntity;
 import com.example.familytree.entities.SpouseEntity;
 import com.example.familytree.models.response.PersonDataV2;
 import com.example.familytree.models.response.PersonInfoDisplay;
 import com.example.familytree.models.response.PersonInfoSimplifiedInfoDis;
+import com.example.familytree.repositories.FamilyTreeUserRepo;
+import com.example.familytree.repositories.LinkSharingRepo;
 import com.example.familytree.repositories.PersonRepo;
 import com.example.familytree.repositories.SpouseRepo;
 import com.example.familytree.services.FamilyTreeService;
+import com.example.familytree.services.LinkSharingService;
+import com.example.familytree.shareds.Constants;
 import com.example.familytree.utils.GetPersonByCenter;
 import com.example.familytree.utils.SearchPersonByName;
 import jakarta.persistence.EntityManager;
@@ -29,6 +35,10 @@ public class DisplayController {
     private final SpouseRepo spouseRepo;
     private final FamilyTreeService familyTreeService;
     private final EntityManager em;
+    private final LinkSharingRepo linkSharingRepo;
+    private final FamilyTreeUserRepo familyTreeUserRepo;
+    private final LinkSharingService linkSharingService;
+
 
     @GetMapping(path = "/test2")
     List<PersonInfoSimplifiedInfoDis> a(@RequestParam int ft,
@@ -148,5 +158,22 @@ public class DisplayController {
             }
         }
         return SearchPersonByName.searchPerson(listPerson, keyword);
+    }
+    @GetMapping(path = "/getFamilyIdByCode")
+    Map<String, Integer> getFamilyIdByCode(@RequestParam(defaultValue = "") String code){
+
+        LinkSharingEntity linkSharingEntity = linkSharingRepo.findFirstByLink(code);
+        Map<String, Integer> res = new HashMap<>();
+        if(linkSharingEntity != null && !linkSharingService.isTimeOutRequired(linkSharingEntity, Constants.LINK_SHARING_DURATION)){
+            res.put("fid", linkSharingEntity.getFamilyTreeId());
+            res.put("pid", linkSharingEntity.getPersonId());
+            int fid = linkSharingEntity.getFamilyTreeId();
+            int uid = linkSharingEntity.getUserId();
+            FamilyTreeUserEntity familyTreeUser = familyTreeUserRepo.findFirstByFamilyTreeIdAndUserId(fid, uid);
+            if(familyTreeUser == null) res.put("UserStatus", -1);
+            else if(familyTreeUser.getUserTreeStatus()) res.put("UserStatus", 1);
+            else res.put("UserStatus", 0);
+        }
+        return res;
     }
 }

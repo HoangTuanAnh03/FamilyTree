@@ -4,6 +4,7 @@ import com.example.familytree.entities.*;
 import com.example.familytree.models.ApiResult;
 import com.example.familytree.repositories.*;
 import com.example.familytree.services.FamilyTreeService;
+import com.example.familytree.services.LinkSharingService;
 import com.example.familytree.shareds.Constants;
 import com.example.familytree.utils.BearerTokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path = "/familyTree")
@@ -25,7 +29,8 @@ public class FamilyTreeController {
     private final PersonRepo personRepo;
     private final FamilyTreeRepo familyTreeRepo;
     private final FamilyTreeService familyTreeService;
-
+    private final LinkSharingRepo linkSharingRepo;
+    private final LinkSharingService linkSharingService;
     @PostMapping("/create")
     public ResponseEntity<ApiResult<?>> create(HttpServletRequest request, @RequestBody FamilyTreeEntity familyTreeEntity) {
         ApiResult<?> result;
@@ -263,4 +268,20 @@ public class FamilyTreeController {
         result = ApiResult.create(HttpStatus.OK, "Lấy danh sách hiển thị Person thành công!", familyTreeService.getDataV2(fid, pid, userByEmail.getUserId()));
         return ResponseEntity.ok(result);
     }
+    @GetMapping(path = "/getFamilyIdByCode")
+        Map<String, Integer> getFamilyIdByCode(@RequestParam(defaultValue = "") String code){
+            LinkSharingEntity linkSharingEntity = linkSharingRepo.findFirstByLink(code);
+            Map<String, Integer> res = new HashMap<>();
+            if(linkSharingEntity != null && !linkSharingService.isTimeOutRequired(linkSharingEntity, Constants.LINK_SHARING_DURATION)){
+                res.put("fid", linkSharingEntity.getFamilyTreeId());
+                res.put("pid", linkSharingEntity.getPersonId());
+                int fid = linkSharingEntity.getFamilyTreeId();
+                int uid = linkSharingEntity.getUserId();
+                FamilyTreeUserEntity familyTreeUser = familyTreeUserRepo.findFirstByFamilyTreeIdAndUserId(fid, uid);
+                if(familyTreeUser == null) res.put("UserStatus", -1);
+                else if(familyTreeUser.getUserTreeStatus()) res.put("UserStatus", 1);
+                else res.put("UserStatus", 0);
+            }
+            return res;
+        }
 }
