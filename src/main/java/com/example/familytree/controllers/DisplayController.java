@@ -106,7 +106,7 @@ public class DisplayController {
     }
 
     @GetMapping(path = "/test6")
-    public List<PersonEntity> searchPerson(@RequestParam int familyTreeId, @RequestParam String keyword){
+    public List<PersonEntity> searchPerson(@RequestParam int familyTreeId, @RequestParam(defaultValue = "") String keyword){
         ArrayList<PersonEntity> list =  new ArrayList<>(personRepo.findByFamilyTreeId(familyTreeId));
         ArrayList<PersonEntity> listPerson = new ArrayList<>();
         for(PersonEntity p : list){
