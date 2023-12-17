@@ -48,6 +48,7 @@ public class SecurityConfig {
 //                )
                 .authorizeHttpRequests((authorize) -> authorize
                                 .requestMatchers("/test").authenticated()
+                                .requestMatchers("/person/search").permitAll()
                                 .requestMatchers("/person/**").authenticated()
 //                                .requestMatchers("/sign-out").authenticated()
                                 .requestMatchers("/familyTree/**").authenticated()
@@ -58,7 +59,6 @@ public class SecurityConfig {
 //                                .requestMatchers("/sign-in",
 //                                "/users/forgetPassword/**",
 //                                "/users/register/**").permitAll()
-//                                .requestMatchers("/person/getInfo").permitAll()
                                 .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

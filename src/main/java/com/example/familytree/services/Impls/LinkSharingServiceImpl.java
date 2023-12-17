@@ -22,7 +22,8 @@ public class LinkSharingServiceImpl implements LinkSharingService {
                 personId,
                 userId,
                 familyTreeId,
-                Constants.getCurrentDay()
+                Constants.getCurrentDay(),
+                null
         );
         linkSharingRepo.save(newLink);
         return Constants.URL_LINK_SHARING + code;

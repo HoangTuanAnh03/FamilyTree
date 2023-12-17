@@ -9,6 +9,7 @@ import com.example.familytree.repositories.*;
 import com.example.familytree.services.PersonService;
 import com.example.familytree.shareds.Constants;
 import com.example.familytree.utils.BearerTokenUtil;
+import com.example.familytree.utils.SearchPersonByName;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -401,5 +403,17 @@ public class PersonController {
         // Service
         result = ApiResult.create(HttpStatus.OK, "Lấy thành công danh sách con!", personService.getListChild(fatherId, motherId));
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping(path = "/search")
+    public List<PersonEntity> searchPerson(@RequestParam int familyTreeId, @RequestParam(defaultValue = "") String keyword){
+        ArrayList<PersonEntity> list =  new ArrayList<>(personRepo.findByFamilyTreeId(familyTreeId));
+        ArrayList<PersonEntity> listPerson = new ArrayList<>();
+        for(PersonEntity p : list){
+            if(!p.getPersonIsDeleted()){ //chua xoa
+                listPerson.add(p);
+            }
+        }
+        return SearchPersonByName.searchPerson(listPerson, keyword);
     }
 }

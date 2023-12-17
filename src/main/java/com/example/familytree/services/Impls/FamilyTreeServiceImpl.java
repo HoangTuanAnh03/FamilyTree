@@ -9,7 +9,6 @@ import com.example.familytree.models.response.PersonInfoSimplifiedInfoDis;
 import com.example.familytree.repositories.*;
 import com.example.familytree.services.FamilyTreeService;
 import com.example.familytree.services.PersonService;
-import com.example.familytree.shareds.Constants;
 import com.example.familytree.utils.GetPersonByCenter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -157,10 +156,8 @@ public class FamilyTreeServiceImpl implements FamilyTreeService {
                 minPersonId = personEntity.getPersonId();
         }
         // Tìm spouse nhỏ nhất
-        ArrayList<Integer> listSpouseId = new ArrayList<>();
         int minSpouseId = listSpouse.get(0).getSpouseId();
         for (SpouseEntity spouseEntity : listSpouse){
-            listSpouseId.add(spouseEntity.getSpouseId());
             if (spouseEntity.getSpouseId() < minSpouseId)
                 minSpouseId = spouseEntity.getSpouseId();
         }

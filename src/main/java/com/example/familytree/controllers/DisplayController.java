@@ -9,6 +9,7 @@ import com.example.familytree.repositories.PersonRepo;
 import com.example.familytree.repositories.SpouseRepo;
 import com.example.familytree.services.FamilyTreeService;
 import com.example.familytree.utils.GetPersonByCenter;
+import com.example.familytree.utils.SearchPersonByName;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
