@@ -1,19 +1,14 @@
 package com.example.familytree.controllers;
 
-import com.example.familytree.entities.FamilyTreeUserEntity;
-import com.example.familytree.entities.LinkSharingEntity;
-import com.example.familytree.entities.PersonEntity;
-import com.example.familytree.entities.SpouseEntity;
+import com.example.familytree.entities.*;
 import com.example.familytree.models.response.PersonDataV2;
 import com.example.familytree.models.response.PersonInfoDisplay;
 import com.example.familytree.models.response.PersonInfoSimplifiedInfoDis;
-import com.example.familytree.repositories.FamilyTreeUserRepo;
-import com.example.familytree.repositories.LinkSharingRepo;
-import com.example.familytree.repositories.PersonRepo;
-import com.example.familytree.repositories.SpouseRepo;
+import com.example.familytree.repositories.*;
 import com.example.familytree.services.FamilyTreeService;
 import com.example.familytree.services.LinkSharingService;
 import com.example.familytree.shareds.Constants;
+import com.example.familytree.utils.BearerTokenUtil;
 import com.example.familytree.utils.GetPersonByCenter;
 import com.example.familytree.utils.SearchPersonByName;
 import jakarta.persistence.EntityManager;
@@ -38,6 +33,7 @@ public class DisplayController {
     private final LinkSharingRepo linkSharingRepo;
     private final FamilyTreeUserRepo familyTreeUserRepo;
     private final LinkSharingService linkSharingService;
+    private final UserAccountRepo userAccountRepo;
 
 
     @GetMapping(path = "/test2")
@@ -160,8 +156,7 @@ public class DisplayController {
         return SearchPersonByName.searchPerson(listPerson, keyword);
     }
     @GetMapping(path = "/getFamilyIdByCode")
-    Map<String, Integer> getFamilyIdByCode(@RequestParam(defaultValue = "") String code){
-
+    Map<String, Integer> getFamilyIdByCode(@RequestParam(defaultValue = "") String code, HttpServletRequest request){
         LinkSharingEntity linkSharingEntity = linkSharingRepo.findFirstByLink(code);
         Map<String, Integer> res = new HashMap<>();
         if(linkSharingEntity != null && !linkSharingService.isTimeOutRequired(linkSharingEntity, Constants.LINK_SHARING_DURATION)){
@@ -169,7 +164,29 @@ public class DisplayController {
             res.put("pid", linkSharingEntity.getPersonId());
             int fid = linkSharingEntity.getFamilyTreeId();
             int uid = linkSharingEntity.getUserId();
-            FamilyTreeUserEntity familyTreeUser = familyTreeUserRepo.findFirstByFamilyTreeIdAndUserId(fid, uid);
+            // ktra người dùng có trong cây k
+            String username = BearerTokenUtil.getUserName(request);
+            UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
+            if(userByEmail == null){
+                res.put("UserStatus", -1);
+            }else{
+                FamilyTreeUserEntity familyTreeUser = familyTreeUserRepo.findFirstByFamilyTreeIdAndUserId(fid, userByEmail.getUserId());
+                if(familyTreeUser == null) res.put("UserStatus", -1);
+                else if(familyTreeUser.getUserTreeStatus()) res.put("UserStatus", 1);
+                else res.put("UserStatus", 0);
+            }
+        }
+        return res;
+    }
+    @GetMapping(path = "/checkStatusUser")
+    Map<String, Integer> checkStatusUser(@RequestParam Integer fid, HttpServletRequest request){
+        Map<String, Integer> res = new HashMap<>();
+        String username = BearerTokenUtil.getUserName(request);
+        UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
+        if(userByEmail == null){
+            res.put("UserStatus", -1);
+        }else{
+            FamilyTreeUserEntity familyTreeUser = familyTreeUserRepo.findFirstByFamilyTreeIdAndUserId(fid, userByEmail.getUserId());
             if(familyTreeUser == null) res.put("UserStatus", -1);
             else if(familyTreeUser.getUserTreeStatus()) res.put("UserStatus", 1);
             else res.put("UserStatus", 0);
