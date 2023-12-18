@@ -1,6 +1,7 @@
 package com.example.familytree.controllers;
 
 import com.example.familytree.entities.*;
+import com.example.familytree.models.ApiResult;
 import com.example.familytree.models.response.PersonDataV2;
 import com.example.familytree.models.response.PersonInfoDisplay;
 import com.example.familytree.models.response.PersonInfoSimplifiedInfoDis;
@@ -15,11 +16,14 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 @CrossOrigin(origins = "*")
@@ -144,7 +148,7 @@ public class DisplayController {
         em.createNativeQuery("SET IDENTITY_INSERT Person ON").executeUpdate();
         return null;
     }
-    @GetMapping(path = "/test9") //Tìm kiếm
+    @GetMapping(path = "/personSearch") //Tìm kiếm
     public List<PersonEntity> searchPerson(@RequestParam int familyTreeId, @RequestParam(defaultValue = "") String keyword){
         ArrayList<PersonEntity> list =  new ArrayList<>(personRepo.findByFamilyTreeId(familyTreeId));
         ArrayList<PersonEntity> listPerson = new ArrayList<>();
@@ -192,5 +196,20 @@ public class DisplayController {
             else res.put("UserStatus", 0);
         }
         return res;
+    }
+
+    @GetMapping(path = "/getDataV2ByCode")
+    ResponseEntity<ApiResult<?>> getDataV2(@RequestParam(defaultValue = "") String code){
+        ApiResult<?> result;
+        LinkSharingEntity linkSharingEntity = linkSharingRepo.findFirstByLink(code);
+        if (linkSharingEntity == null){
+            result = ApiResult.create(HttpStatus.NOT_FOUND, "Code không hợp lệ", null);
+            return ResponseEntity.ok(result);
+        }
+        else{
+
+            result = ApiResult.create(HttpStatus.OK, "Lấy danh sách hiển thị Person thành công!", familyTreeService.getDataV2(linkSharingEntity.getFamilyTreeId(), linkSharingEntity.getPersonId(), 199203));
+            return ResponseEntity.ok(result);
+        }
     }
 }

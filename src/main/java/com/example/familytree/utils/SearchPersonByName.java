@@ -18,7 +18,7 @@ public class SearchPersonByName {
     }
     public static List<PersonEntity> searchPerson(ArrayList<PersonEntity> listPerson, String keyword){
         if(keyword == null || keyword.isEmpty() || keyword.trim().replaceAll(" +", " ").isEmpty() || keyword.trim().replaceAll(" +", " ").equals(" ")) return new ArrayList<PersonEntity>();
-        List<PersonEntity> res = listPerson.stream().filter(p -> changeUnicode(p.getPersonName()).replaceAll(" +"," ").trim().contains(changeUnicode(keyword).replaceAll(" +"," ").trim())).collect(Collectors.toList());
+        List<PersonEntity> res = listPerson.stream().filter(p -> changeUnicode(p.getPersonName()).replaceAll(" +"," ").trim().toLowerCase().contains(changeUnicode(keyword).replaceAll(" +"," ").trim().toLowerCase())).collect(Collectors.toList());
         return res;
     }
 }
