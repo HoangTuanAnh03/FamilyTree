@@ -167,13 +167,17 @@ public class FamilyTreeServiceImpl implements FamilyTreeService {
 
         /*Copy Person*/
         for (PersonEntity personEntity : listPerson) {
+            PersonEntity personCurrent =  personService.createPersonCopy(personEntity, newFamilyTree.getFamilyTreeId(), rangePersonId);
+            // Set lại Motherid và fatherID
             if (personEntity.getFatherId() != null && !listPersonId.contains(personEntity.getFatherId()) && !personRepo.existsByPersonId(personEntity.getFatherId() + rangePersonId)) {
-                personService.createPersonCopyVirtual(newFamilyTree.getFamilyTreeId(), personEntity.getFatherId() + rangePersonId, true);
+                personCurrent.setFatherId(personEntity.getFatherId() + rangePersonId);
+                personRepo.save(personCurrent);
             }
             if (personEntity.getMotherId() != null && !listPersonId.contains(personEntity.getMotherId()) && !personRepo.existsByPersonId(personEntity.getMotherId() + rangePersonId)) {
-                personService.createPersonCopyVirtual(newFamilyTree.getFamilyTreeId(), personEntity.getMotherId() + rangePersonId, false);
+                personCurrent.setMotherId(personEntity.getMotherId() + rangePersonId);
+                personRepo.save(personCurrent);
             }
-            personService.createPersonCopy(personEntity, newFamilyTree.getFamilyTreeId(), rangePersonId);
+
         }
 
         /*Copy Spouse*/

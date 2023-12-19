@@ -188,7 +188,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @Transactional
-    public void createPersonCopy(PersonEntity person, int fid, int range) {
+    public PersonEntity createPersonCopy(PersonEntity person, int fid, int range) {
         String jqlON = "SET IDENTITY_INSERT Person ON";
         jdbcTemplate.execute(jqlON);
         int personId = person.getPersonId() + range;
@@ -201,15 +201,7 @@ public class PersonServiceImpl implements PersonService {
         String jqlOFF = "SET IDENTITY_INSERT Person OFF";
         jdbcTemplate.execute(jqlOFF);
 
-        // Set lại fatherId và motherId
-        PersonEntity personCurrent = personRepo.findFirstByPersonId(personId);
-        if (person.getFatherId() != null){
-            personCurrent.setFatherId(person.getFatherId() + range);
-        }
-        if (person.getMotherId() != null){
-            personCurrent.setMotherId(person.getMotherId() + range);
-        }
-        personRepo.save(personCurrent);
+        return personRepo.findFirstByPersonId(personId);
     }
 
     @Override
