@@ -31,7 +31,7 @@ public interface PersonService {
     void createPersonCopyVirtual(int fid, int pid, boolean gender);
 
     @Transactional
-    void createPersonCopy(PersonEntity personEntity, int fid, int range);
+    PersonEntity createPersonCopy(PersonEntity personEntity, int fid, int range);
 
     void updatePerson(UpdatePersonDto updatePersonDto);
 
