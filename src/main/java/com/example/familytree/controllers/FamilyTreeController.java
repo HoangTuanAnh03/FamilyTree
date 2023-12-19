@@ -269,7 +269,7 @@ public class FamilyTreeController {
         return ResponseEntity.ok(result);
     }
     @GetMapping(path = "/getFamilyIdByCode")
-        Map<String, Integer> getFamilyIdByCode(@RequestParam(defaultValue = "") String code){
+        Map<String, Integer> getFamilyIdByCode(@RequestParam(defaultValue = "") String code,  HttpServletRequest request){
             LinkSharingEntity linkSharingEntity = linkSharingRepo.findFirstByLink(code);
             Map<String, Integer> res = new HashMap<>();
             if(linkSharingEntity != null && !linkSharingService.isTimeOutRequired(linkSharingEntity, Constants.LINK_SHARING_DURATION)){
@@ -277,7 +277,11 @@ public class FamilyTreeController {
                 res.put("pid", linkSharingEntity.getPersonId());
                 int fid = linkSharingEntity.getFamilyTreeId();
                 int uid = linkSharingEntity.getUserId();
-                FamilyTreeUserEntity familyTreeUser = familyTreeUserRepo.findFirstByFamilyTreeIdAndUserId(fid, uid);
+                // ktra người dùng có trong cây k
+                String username = BearerTokenUtil.getUserName(request);
+                UserAccountEntity userByEmail = userAccountRepo.findFirstByUserEmail(username);
+
+                FamilyTreeUserEntity familyTreeUser = familyTreeUserRepo.findFirstByFamilyTreeIdAndUserId(fid, userByEmail.getUserId());
                 if(familyTreeUser == null) res.put("UserStatus", -1);
                 else if(familyTreeUser.getUserTreeStatus()) res.put("UserStatus", 1);
                 else res.put("UserStatus", 0);

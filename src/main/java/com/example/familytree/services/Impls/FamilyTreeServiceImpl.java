@@ -207,8 +207,10 @@ public class FamilyTreeServiceImpl implements FamilyTreeService {
         for (PersonEntity personEntity : listPerson) {
             if (personEntity.getParentsId() != null) {
                 PersonEntity personCopy = personRepo.findFirstByPersonId(personEntity.getPersonId() + rangePersonId);
-                personCopy.setParentsId(personEntity.getParentsId() + rangeSpouseId);
-                personRepo.save(personCopy);
+                if(spouseRepo.existsById(personEntity.getParentsId() + rangeSpouseId)){
+                    personCopy.setParentsId(personEntity.getParentsId() + rangeSpouseId);
+                    personRepo.save(personCopy);
+                }
             }
         }
 
