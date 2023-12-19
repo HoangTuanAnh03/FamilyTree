@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping(path = "/person")
@@ -180,7 +181,7 @@ public class PersonController {
                 result = ApiResult.create(HttpStatus.NOT_FOUND, MessageFormat.format(Constants.NOT_FOUND_PERSON, siblingId), childrenDto);
                 return ResponseEntity.ok(result);
             }
-            if (sibling.getFatherId() != childrenDto.getFatherId()  && sibling.getMotherId() != childrenDto.getMotherId()){
+            if (!sibling.getFatherId().equals(childrenDto.getFatherId()) && !sibling.getMotherId().equals(childrenDto.getMotherId())){
                 result = ApiResult.create(HttpStatus.BAD_REQUEST, Constants.SIBLING_NOT_A_CHILD, childrenDto);
                 return ResponseEntity.ok(result);
             }
@@ -259,11 +260,11 @@ public class PersonController {
             result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.NO_PARENTS, newPerson.getPersonId()), newPerson);
             return ResponseEntity.ok(result);
         }
-        if (newPerson.getFatherId() != null && personById.getFatherId() != null && newPerson.getFatherId() != personById.getFatherId()){
+        if (newPerson.getFatherId() != null && personById.getFatherId() != null && !newPerson.getFatherId().equals(personById.getFatherId())){
             result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.NOT_EDIT_FATHER, newPerson.getPersonId(), personById.getFatherId()), newPerson);
             return ResponseEntity.ok(result);
         }
-        if (newPerson.getMotherId() != null && personById.getMotherId() != null && newPerson.getMotherId() != personById.getMotherId()){
+        if (newPerson.getMotherId() != null && personById.getMotherId() != null && !newPerson.getMotherId().equals(personById.getMotherId())){
             result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.NOT_EDIT_MOTHER, newPerson.getPersonId(), personById.getMotherId()), newPerson);
             return ResponseEntity.ok(result);
         }
@@ -298,8 +299,8 @@ public class PersonController {
                 result = ApiResult.create(HttpStatus.NOT_FOUND, MessageFormat.format(Constants.NOT_FOUND_PERSON, newPerson.getSiblingId()), newPerson);
                 return ResponseEntity.ok(result);
             }
-            if ((sibling.getFatherId() != newPerson.getFatherId() && newPerson.getFatherId() != null)
-                    && (sibling.getMotherId() != newPerson.getMotherId() && newPerson.getMotherId() != null)){
+            if ((!Objects.equals(sibling.getFatherId(), newPerson.getFatherId()) && newPerson.getFatherId() != null)
+                    && (!Objects.equals(sibling.getMotherId(), newPerson.getMotherId()) && newPerson.getMotherId() != null)){
                 result = ApiResult.create(HttpStatus.BAD_REQUEST, Constants.SIBLING_NOT_A_CHILD, newPerson);
                 return ResponseEntity.ok(result);
             }
