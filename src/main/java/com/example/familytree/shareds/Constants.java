@@ -104,6 +104,22 @@ public class Constants {
     public static final long ACCESS_TOKEN_EXP = 24 * 60 * 60 * 1000; // 1 ngày
     public static final long REFRESH_TOKEN_EXP = 30L * 24 * 60 * 60 * 1000; // 1 tháng
 
+    // Notification
+    public static final String CREATE_PERSON_MESSAGE = "{0} has just added {1} data to the {2} schema.";
+    public static final String UPDATE_PERSON_MESSAGE = "{0} has just updated {1} data to the {2} schema.";
+    public static final String DELETE_PERSON_MESSAGE = "{0} has just deleted {1} from the {2} schema.";
+
+    public static final String CREATE_PERSON_TYPE = "CREATE_PERSON";
+    public static final String UPDATE_PERSON_TYPE = "UPDATE_PERSON";
+    public static final String DELETE_PERSON_TYPE = "DELETE_PERSON";
+
+    public static final String userId = "userId";
+    public static final String userName = "userName";
+    public static final String personId = "personId";
+    public static final String personName = "personName";
+    public static final String familyTreeId = "familyTreeId";
+    public static final String message = "message";
+
 
 
 

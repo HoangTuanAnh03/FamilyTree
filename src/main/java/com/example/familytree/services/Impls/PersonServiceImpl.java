@@ -109,38 +109,6 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @Transactional
-    public void createPerson(PersonDto personDto) {
-        PersonEntity newPerson = PersonEntity.create(
-                0,
-                personDto.getPersonName(),
-                personDto.getPersonGender(),
-                personDto.getPersonDob(),
-                personDto.getPersonJob(),
-                personDto.getPersonReligion(),
-                personDto.getPersonEthnic(),
-                personDto.getPersonDod(),
-                personDto.getPersonAddress(),
-                personDto.getParentsId(),
-                personDto.getFamilyTreeId(),
-                personDto.getPersonStatus(),
-                personDto.getPersonRank(),
-                personDto.getPersonDescription(),
-                personDto.getPersonStory(),
-                personDto.getFatherId(),
-                personDto.getMotherId(),
-                false,
-                Constants.getCurrentDay(),
-                null,
-                null,
-                personDto.getPersonImage(),
-                personDto.getSiblingNum(),
-                personDto.getGroupChildId()
-        );
-        personRepo.save(newPerson);
-    }
-
-    @Override
-    @Transactional
     public PersonEntity createPersonVirtual(int fid, boolean gender) {
         PersonEntity personVirtual = PersonEntity.create(
                 0,
@@ -206,7 +174,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @Transactional
-    public void updatePerson(UpdatePersonDto newInfo) {
+    public PersonEntity updatePerson(UpdatePersonDto newInfo) {
         PersonEntity currentPerson = personRepo.findFirstByPersonId(newInfo.getPersonId());
 
         currentPerson.setPersonName(newInfo.getPersonName() == null ? currentPerson.getPersonName() : newInfo.getPersonName());
@@ -246,6 +214,7 @@ public class PersonServiceImpl implements PersonService {
         }
         currentPerson.setSiblingNum(newInfo.getSiblingNum() + 0.5);
         personRepo.save(currentPerson);
+        return currentPerson;
     }
 
     @Override
@@ -340,7 +309,6 @@ public class PersonServiceImpl implements PersonService {
             person.setMotherId(parentEntity.getPersonId());
             personRepo.save(person);
         }
-
         return parentEntity;
     }
 

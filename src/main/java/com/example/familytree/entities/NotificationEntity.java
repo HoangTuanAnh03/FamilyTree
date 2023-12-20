@@ -19,12 +19,13 @@ public class NotificationEntity {
     @Column(name = "type", nullable = false, length = 2147483647)
     private String type;
     @Basic
-    @Column(name = "senderId", nullable = false)
+    @Column(name = "sender_id", nullable = false)
     private int senderId;
     @Basic
-    @Column(name = "receiveId", nullable = false)
+    @Column(name = "receive_id", nullable = false)
     private int receiveId;
     @Basic
     @Column(name = "content", nullable = true, length = 2147483647)
     private String content;
+
 }

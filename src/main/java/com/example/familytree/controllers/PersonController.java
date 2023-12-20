@@ -2,10 +2,12 @@ package com.example.familytree.controllers;
 
 
 import com.example.familytree.entities.*;
+import com.example.familytree.enums.NotiTypeEnum;
 import com.example.familytree.models.ApiResult;
 import com.example.familytree.models.dto.PersonDto;
 import com.example.familytree.models.dto.UpdatePersonDto;
 import com.example.familytree.repositories.*;
+import com.example.familytree.services.NotificationService;
 import com.example.familytree.services.PersonService;
 import com.example.familytree.shareds.Constants;
 import com.example.familytree.utils.BearerTokenUtil;
@@ -33,6 +35,7 @@ public class PersonController {
     private final UserAccountRepo userAccountRepo;
     private final FamilyTreeUserRepo familyTreeUserRepo;
     private final FamilyTreeRepo familyTreeRepo;
+    private final NotificationService notificationService;
 
     @GetMapping(path = "/getInfo")
     public ResponseEntity<ApiResult<?>> getInfoPerson(@RequestParam int personId, HttpServletRequest request) {
@@ -92,6 +95,8 @@ public class PersonController {
                 "Tạo người Preson đầu tiên trong cây thành công!",
                 newPerson
         );
+        notificationService.HandleInsertNotification(newPerson, userByEmail, NotiTypeEnum.CREATE_PERSON);
+
         return ResponseEntity.ok(result);
     }
 
@@ -122,6 +127,8 @@ public class PersonController {
             return ResponseEntity.ok(result);
         }
         PersonEntity newPerson = personService.createParents(personDto, personId);
+        notificationService.HandleInsertNotification(newPerson, userByEmail, NotiTypeEnum.CREATE_PERSON);
+
         result = ApiResult.create(HttpStatus.OK, Constants.ADD_PARENTS_SUCCESS, newPerson);
         return ResponseEntity.ok(result);
     }
@@ -201,6 +208,7 @@ public class PersonController {
 
         //         Gọi service
         PersonEntity newChildren =  personService.createChildren(childrenDto, siblingId);
+        notificationService.HandleInsertNotification(newChildren, userByEmail, NotiTypeEnum.CREATE_PERSON);
 
         result = ApiResult.create(HttpStatus.OK, Constants.ADD_CHILD_SUCCESS, newChildren);
         return ResponseEntity.ok(result);
@@ -230,7 +238,8 @@ public class PersonController {
             return ResponseEntity.ok(result);
         }
 
-        personService.createSpouse(personDto, personId);
+        PersonEntity newPerson = personService.createSpouse(personDto, personId);
+        notificationService.HandleInsertNotification(newPerson, userByEmail, NotiTypeEnum.CREATE_PERSON);
 
         result = ApiResult.create(HttpStatus.OK, "Thêm thành công vợ hoặc chồng", null);
         return ResponseEntity.ok(result);
@@ -316,7 +325,9 @@ public class PersonController {
                 return ResponseEntity.ok(result);
             }
         }
-        personService.updatePerson(newPerson);
+        PersonEntity updatePerson = personService.updatePerson(newPerson);
+        notificationService.HandleInsertNotification(updatePerson, userByEmail, NotiTypeEnum.UPDATE_PERSON);
+
         result = ApiResult.create(HttpStatus.OK, Constants.UPDATE_PERSON_SUCCESS, newPerson);
         return ResponseEntity.ok(result);
     }
@@ -344,6 +355,7 @@ public class PersonController {
         personByPersonId.setPersonDeletedAt(Constants.getCurrentDay());
         personRepo.save(personByPersonId);
 
+        notificationService.HandleInsertNotification(personByPersonId, userByEmail, NotiTypeEnum.DELETE_PERSON);
 
         result = ApiResult.create(HttpStatus.OK, "Xoá thành công Person", null);
         return ResponseEntity.ok(result);

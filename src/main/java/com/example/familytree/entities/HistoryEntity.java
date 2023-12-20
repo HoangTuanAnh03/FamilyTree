@@ -1,10 +1,16 @@
 package com.example.familytree.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor(staticName = "create")
 @Table(name = "History", schema = "dbo", catalog = "web")
 public class HistoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,8 +36,12 @@ public class HistoryEntity {
     @Column(name = "history_deleted_at", nullable = true)
     private Date historyDeletedAt;
     @Basic
-    @Column(name = "history_updated_at", nullable = false)
+    @Column(name = "history_updated_at", nullable = true)
     private Date historyUpdatedAt;
-
-   
+    @Basic
+    @Column(name = "current_data", nullable = false, length = -1)
+    private String currentData;
+    @Basic
+    @Column(name = "old_data", nullable = true, length = -1)
+    private String oldData;
 }

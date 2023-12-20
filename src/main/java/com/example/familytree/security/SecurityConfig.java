@@ -52,6 +52,8 @@ public class SecurityConfig {
                                 .requestMatchers("/person/**").authenticated()
 //                                .requestMatchers("/sign-out").authenticated()
                                 .requestMatchers("/familyTree/**").authenticated()
+                                .requestMatchers("/notification/**").authenticated()
+
 
 //                                .requestMatchers("/familytree-api-docs",
 //                                        "/familytree-documentation",

@@ -22,7 +22,6 @@ public interface PersonService {
     InfoAddPersonResponse getInfoPerson(int personId, String option);
 
     List<PersonEntity> getListChild(int fatherId, int motherId);
-    void createPerson(PersonDto personDto);
 
     @Transactional
     PersonEntity createPersonVirtual(int fid, boolean gender);
@@ -33,6 +32,6 @@ public interface PersonService {
     @Transactional
     PersonEntity createPersonCopy(PersonEntity personEntity, int fid, int range);
 
-    void updatePerson(UpdatePersonDto updatePersonDto);
+    PersonEntity updatePerson(UpdatePersonDto updatePersonDto);
 
 }
