@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -215,8 +216,8 @@ public class GetPersonByCenter {
                 }
                 return "Bà";
             case -1:
-                if(personInCenter.getFatherId() == person2.getPersonId()) return "Bố";
-                else if (personInCenter.getMotherId() == person2.getPersonId()) return "Mẹ";
+                if(personInCenter.getFatherId() != null && personInCenter.getFatherId() == person2.getPersonId()) return "Bố";
+                else if (personInCenter.getMotherId() != null && personInCenter.getMotherId() == person2.getPersonId()) return "Mẹ";
                 else{
                     if(isLarger(personInCenter, person2, personWithCenter, personEntities, spouseEntities, fatherSide, intestine) > 0) return "Bác";
                     else if(isLarger(personInCenter, person2, personWithCenter, personEntities, spouseEntities, fatherSide, intestine) < 0){
@@ -309,6 +310,7 @@ public class GetPersonByCenter {
                 if(person2.getMotherId() != null){
                     parents.add(findByPersonId(person2.getMotherId(), personEntities));
                 }
+                if(parents.isEmpty()) return "Cháu";
                 ArrayList<PersonEntity> p = new ArrayList<>();
                 for(PersonEntity pa : parents){
                     if(pa.getFatherId() != null){
@@ -318,6 +320,7 @@ public class GetPersonByCenter {
                         p.add(findByPersonId(pa.getMotherId(), personEntities));
                     }
                 }
+                if(p.isEmpty()) return "Cháu";
                 ArrayList<PersonEntity> pp = new ArrayList<>();
                 for(PersonEntity pa : p){
                     if(pa.getFatherId() != null){
@@ -327,7 +330,7 @@ public class GetPersonByCenter {
                         pp.add(findByPersonId(pa.getMotherId(), personEntities));
                     }
                 }
-
+                if(pp.isEmpty()) return "Cháu";
                 if(pp.contains(personInCenter)){
                     return "Chắt";
                 }
@@ -342,7 +345,7 @@ public class GetPersonByCenter {
                 if(person2.getMotherId() != null){
                     parents4.add(findByPersonId(person2.getMotherId(), personEntities));
                 }
-
+                if(parents4.isEmpty()) return "Cháu";
                 ArrayList<PersonEntity> p4 = new ArrayList<>();
                 for(PersonEntity pa : parents4){
                     if(pa.getFatherId() != null){
@@ -352,6 +355,7 @@ public class GetPersonByCenter {
                         p4.add(findByPersonId(pa.getMotherId(), personEntities));
                     }
                 }
+                if(p4.isEmpty()) return "Cháu";
                 ArrayList<PersonEntity> pp4 = new ArrayList<>();
                 for(PersonEntity pa : p4){
                     if(pa.getFatherId() != null){
@@ -361,6 +365,7 @@ public class GetPersonByCenter {
                         pp4.add(findByPersonId(pa.getMotherId(), personEntities));
                     }
                 }
+                if(pp4.isEmpty()) return "Cháu";
                 ArrayList<PersonEntity> ppp4 = new ArrayList<>();
                 for(PersonEntity pa : pp4){
                     if(pa.getFatherId() != null){
@@ -370,6 +375,7 @@ public class GetPersonByCenter {
                         ppp4.add(findByPersonId(pa.getMotherId(), personEntities));
                     }
                 }
+                if(ppp4.isEmpty()) return "Cháu";
                 if(ppp4.contains(personInCenter)){
                     return "Chút/Chít";
                 }
@@ -384,7 +390,7 @@ public class GetPersonByCenter {
                 if(person2.getMotherId() != null){
                     parents5.add(findByPersonId(person2.getMotherId(), personEntities));
                 }
-
+                if(parents5.isEmpty()) return "Cháu";
                 ArrayList<PersonEntity> p5 = new ArrayList<>();
                 for(PersonEntity pa : parents5){
                     if(pa.getFatherId() != null){
@@ -394,6 +400,7 @@ public class GetPersonByCenter {
                         p5.add(findByPersonId(pa.getMotherId(), personEntities));
                     }
                 }
+                if(p5.isEmpty()) return "Cháu";
                 ArrayList<PersonEntity> pp5 = new ArrayList<>();
                 for(PersonEntity pa : p5){
                     if(pa.getFatherId() != null){
@@ -403,6 +410,7 @@ public class GetPersonByCenter {
                         pp5.add(findByPersonId(pa.getMotherId(), personEntities));
                     }
                 }
+                if(pp5.isEmpty()) return "Cháu";
                 ArrayList<PersonEntity> ppp5 = new ArrayList<>();
                 for(PersonEntity pa : pp5){
                     if(pa.getFatherId() != null){
@@ -412,6 +420,7 @@ public class GetPersonByCenter {
                         ppp5.add(findByPersonId(pa.getMotherId(), personEntities));
                     }
                 }
+                if(ppp5.isEmpty()) return "Cháu";
                 ArrayList<PersonEntity> pppp = new ArrayList<>();
                 for(PersonEntity pa : ppp5){
                     if(pa.getFatherId() != null){
@@ -421,6 +430,7 @@ public class GetPersonByCenter {
                         pppp.add(findByPersonId(pa.getMotherId(), personEntities));
                     }
                 }
+                if(pppp.isEmpty()) return "Cháu";
                 if(pppp.contains(personInCenter)){
                     return "Chụt/Chuỵt";
                 }
@@ -489,7 +499,7 @@ public class GetPersonByCenter {
                 if ((Objects.equals(gender, "Male") && person.getFatherId() != null && person.getFatherId().intValue() == personId) || (Objects.equals(gender, "Female") && person.getMotherId() != null && person.getMotherId().intValue() == personId)) {
 
                     int childPersonId = person.getPersonId();
-                    if(!personIdInTheMainTree.contains(childPersonId) || childPersonId == centerId){
+                    if(childPersonId == centerId || !personIdInTheMainTree.contains(childPersonId)) {
                         personsWithCenter.add(childPersonId);
                         intestine.putIfAbsent(childPersonId, Boolean.TRUE);
                         fatherSide.putIfAbsent(childPersonId, isFatherSide);
@@ -497,7 +507,7 @@ public class GetPersonByCenter {
                         ArrayList<Integer> spousePidList2 = getPersonIdBySpouseId(spouses, childPersonId, persons);
                         int isFatherSideBySpouse = fatherSide.get(childPersonId);
                         personsWithCenter.addAll(spousePidList2);
-                        for(int x: spousePidList2){
+                        for (int x : spousePidList2) {
                             fatherSide.putIfAbsent(x, isFatherSideBySpouse);
                             intestine.putIfAbsent(x, Boolean.FALSE);
                         }
@@ -660,6 +670,14 @@ public class GetPersonByCenter {
         apiDisplays.sort(Comparator.comparingInt(PersonInfoSimplifiedInfoDis::getId));
         return apiDisplays;
     }
+    public static boolean checkSpouseInList(ArrayList<PersonInfoDisplay> listPersonByCenter, Integer personId){
+        for(PersonInfoDisplay per : listPersonByCenter){
+            if(per.getId() == personId){
+                return true;
+            }
+        }
+        return false;
+    }
     public static Map<Integer, PersonDataV2> getDataV2(int familyTreeId, int personCenterId, ArrayList<SpouseEntity> listSpouse, ArrayList<PersonEntity> listPerson){
         Map<Integer, PersonDataV2> apiDislays = new HashMap<>();
         ArrayList<PersonInfoDisplay> listPersonByCenter = GetPersonByCenterDis(familyTreeId, personCenterId, listSpouse, listPerson);
@@ -668,7 +686,7 @@ public class GetPersonByCenter {
             Integer parentId = p.getParentId();
             Integer fatherId = p.getInfo().getFatherId();
             Integer motherId = p.getInfo().getMotherId();
-            ArrayList<Integer> spousePersonIds = getPersonIdBySpouseId(listSpouse, personId, listPerson);
+            ArrayList<Integer> spousePersonIds = getPersonIdBySpouseId(listSpouse, personId, listPerson).stream().filter(sp -> checkSpouseInList(listPersonByCenter, sp)).collect(Collectors.toCollection(ArrayList::new));
             ArrayList<Integer> childrenIds = new ArrayList<>();
             for (PersonInfoDisplay p2 : listPersonByCenter) {
                 if ((p2.getInfo().getFatherId() != null && p2.getInfo().getFatherId() == personId) || (p2.getInfo().getMotherId() != null && p2.getInfo().getMotherId() == personId))

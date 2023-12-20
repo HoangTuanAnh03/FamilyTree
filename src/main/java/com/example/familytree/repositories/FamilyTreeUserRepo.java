@@ -11,6 +11,8 @@ import java.util.List;
 public interface FamilyTreeUserRepo extends JpaRepository<FamilyTreeUserEntity, Integer> {
     FamilyTreeUserEntity findFirstByFamilyTreeIdAndUserId(int familyTreeId, int userid);
     List<FamilyTreeUserEntity> findByUserIdAndUserTreeStatus(int userId, boolean status);
+    List<FamilyTreeUserEntity> findByFamilyTreeIdAndUserTreeStatus(int fid, boolean status);
+
     List<FamilyTreeUserEntity> findByFamilyTreeId(int id);
 
     boolean existsByFamilyTreeIdAndUserIdAndUserTreeStatus (int familyTreeId, int userid, boolean status);
