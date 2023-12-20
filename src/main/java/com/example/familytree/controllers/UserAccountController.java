@@ -63,19 +63,19 @@ public class UserAccountController {
             OtpEntity otp = otpRepo.findFirstByUserId(user.getUserId());
             if (otp != null){
                 if (!userAccountService.isTimeOutRequired(otp, Constants.OTP_VALID_DURATION_1P)) {
-                    result = ApiResult.create(HttpStatus.OK, "Bạn hãy chờ 1p để gửi lại OTP", email);
+                    result = ApiResult.create(HttpStatus.BAD_REQUEST, "Bạn hãy chờ 1p để gửi lại OTP", email);
                     return ResponseEntity.ok(result);
 
                 }
 
                 if (otp.getOtpFailAttempts() >= 5 && !userAccountService.isTimeOutRequired(otp, Constants.OTP_VALID_DURATION_5P)) {
-                    result = ApiResult.create(HttpStatus.OK, "Bạn hãy chờ 5p để gửi lại OTP vì bạn đã nhập quá 5 lần", email);
+                    result = ApiResult.create(HttpStatus.BAD_REQUEST, "Bạn hãy chờ 5p để gửi lại OTP vì bạn đã nhập quá 5 lần", email);
                     return ResponseEntity.ok(result);
 
                 }
             }
         } else {
-            result = ApiResult.create(HttpStatus.OK, "Không tìm thấy user", email);
+            result = ApiResult.create(HttpStatus.BAD_REQUEST, "Không tìm thấy user", email);
             return ResponseEntity.ok(result);
         }
         userAccountService.forgetPassword(user.getUserId());
@@ -90,10 +90,14 @@ public class UserAccountController {
         HttpStatus httpStatus = HttpStatus.OK;
         String message = Constants.OTP_SUCCESS;
         switch (verificationEnum) {
-            case FAILED ->
+            case FAILED -> {
+                httpStatus = HttpStatus.BAD_REQUEST;
                 message = Constants.OTP_FAILED;
-            case TIME_OUT ->
+            }
+            case TIME_OUT -> {
+                httpStatus = HttpStatus.BAD_REQUEST;
                 message = Constants.OTP_TIME_OUT;
+            }
             case FAIL_ATTEMPT -> {
                 httpStatus = HttpStatus.BAD_REQUEST;
                 message = Constants.OTP_COUNT_FAIL_ATTEMPT;

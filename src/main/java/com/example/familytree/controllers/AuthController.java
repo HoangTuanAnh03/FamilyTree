@@ -39,12 +39,6 @@ public class AuthController {
     private final UserAccountRepo userAccountRepo;
     private final KeyRepo keyRepo;
 
-    @GetMapping(path = "/test")
-    // [GET] localhost:8080/admins/list
-    public String test() {
-        return "uuuuuu";
-    }
-
     @GetMapping("/verifyRefreshToken")
     public ResponseEntity<ApiResult<TokenResponse>> verifyUser(@RequestParam(name = "token") String token) {
         ApiResult<TokenResponse> result = null;
@@ -67,11 +61,7 @@ public class AuthController {
                         jwtService.generateAccessToken(user.getUserEmail(), keyByUser.getPublicKey()),
                         refreshToken
                 );
-                // Lưu lại refreshToken vào DB
-                /*
-                 *
-                 *
-                 * */
+
                 keyByUser.setRefreshToken(refreshToken);
                 keyRepo.save(keyByUser);
 

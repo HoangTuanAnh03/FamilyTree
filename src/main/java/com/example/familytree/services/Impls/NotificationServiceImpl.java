@@ -29,7 +29,6 @@ import java.util.concurrent.CompletableFuture;
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepo notificationRepo;
     private final FamilyTreeRepo familyTreeRepo;
-    private final UserAccountRepo userAccountRepo;
     private final FamilyTreeUserRepo familyTreeUserRepo;
 
     @Override
@@ -64,10 +63,11 @@ public class NotificationServiceImpl implements NotificationService {
         NotificationEntity noti = NotificationEntity.create(0, type.getDescription(), user.getUserId(), 0, content);
 
         ArrayList<Integer> ids = new ArrayList<>();
-        List<FamilyTreeUserEntity> listUser = familyTreeUserRepo.findByFamilyTreeId(person.getFamilyTreeId());
+        List<FamilyTreeUserEntity> listUser = familyTreeUserRepo.findByFamilyTreeIdAndUserTreeStatus(person.getFamilyTreeId(), true);
         for (FamilyTreeUserEntity familyTreeUserEntity : listUser) {
             ids.add(familyTreeUserEntity.getUserId());
         }
+        
 
         this.createMultipleAsync(noti, ids);
     }
