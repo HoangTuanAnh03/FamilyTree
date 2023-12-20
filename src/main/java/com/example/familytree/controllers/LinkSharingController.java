@@ -1,11 +1,13 @@
 package com.example.familytree.controllers;
 
+import com.example.familytree.entities.FamilyTreeEntity;
 import com.example.familytree.entities.FamilyTreeUserEntity;
 import com.example.familytree.entities.LinkSharingEntity;
 import com.example.familytree.entities.UserAccountEntity;
 import com.example.familytree.models.ApiResult;
 import com.example.familytree.repositories.*;
 import com.example.familytree.services.LinkSharingService;
+import com.example.familytree.services.SendMailService;
 import com.example.familytree.shareds.Constants;
 import com.example.familytree.utils.BearerTokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,6 +30,7 @@ public class LinkSharingController {
     private final FamilyTreeRepo familyTreeRepo;
     private final LinkSharingService linkSharingService;
     private final LinkSharingRepo linkSharingRepo;
+    private final SendMailService sendMailService;
 
     @PostMapping(path = "/create")
     public ResponseEntity<ApiResult<?>> createLinkShare (@RequestParam int familyTreeId, @RequestParam int personId, HttpServletRequest request) {
@@ -62,7 +65,7 @@ public class LinkSharingController {
     }
 
     @PostMapping(path = "")
-    public ResponseEntity<ApiResult<?>> joinLink (@RequestParam String code,  HttpServletRequest request) {
+    public ResponseEntity<ApiResult<?>> joinLink (@RequestParam String code, HttpServletRequest request) {
         ApiResult<?> result;
 
         String email = BearerTokenUtil.getUserName(request);
@@ -99,6 +102,8 @@ public class LinkSharingController {
                 null
         );
         familyTreeUserRepo.save(newFamilyTreeUser);
+
+        sendMailService.requestJoinFamilyTree(userAccountRepo.findFirstByUserId(userByToken.getUserId()), familyTreeRepo.findFirstByFamilyTreeId(linkSharingRepo.findFirstByLink(code).getFamilyTreeId()));
 
         result = ApiResult.create(HttpStatus.BAD_REQUEST, "Gửi yêu cầu tham gia cây thành công. Hãy chờ được duyệt!", null);
         return ResponseEntity.ok(result);

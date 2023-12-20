@@ -105,13 +105,17 @@ public class Constants {
     public static final long REFRESH_TOKEN_EXP = 30L * 24 * 60 * 60 * 1000; // 1 tháng
 
     // Notification
-    public static final String CREATE_PERSON_MESSAGE = "{0} has just added {1} data to the {2} schema.";
-    public static final String UPDATE_PERSON_MESSAGE = "{0} has just updated {1} data to the {2} schema.";
-    public static final String DELETE_PERSON_MESSAGE = "{0} has just deleted {1} from the {2} schema.";
+    public static final String CREATE_PERSON_MESSAGE = "{0} đã thêm dữ liệu của {1} vào sơ đồ {2}.";
+    public static final String UPDATE_PERSON_MESSAGE = "{0} đã sửa dữ liệu của {1} trong sơ đồ {2}.";
+    public static final String DELETE_PERSON_MESSAGE = "{0} đã xoá dữ liệu của {1} khỏi sơ đồ {2}.";
+    public static final String JOIN_FAMILY_TREE_MESSAGE = "{0} đã tham gia vào sơ đồ {1}";
+    public static final String REQUEST_JOIN_FAMILY_TREE_MESSAGE = "{0} yêu cầu tham gia vào sơ đồ {1}";
 
     public static final String CREATE_PERSON_TYPE = "CREATE_PERSON";
     public static final String UPDATE_PERSON_TYPE = "UPDATE_PERSON";
     public static final String DELETE_PERSON_TYPE = "DELETE_PERSON";
+    public static final String JOIN_FAMILY_TREE_TYPE = "JOIN_FAMILY_TREE";
+    public static final String REQUEST_JOIN_FAMILY_TREE_TYPE = "REQUEST_JOIN_FAMILY_TREE";
 
     public static final String userId = "userId";
     public static final String userName = "userName";
@@ -126,23 +130,23 @@ public class Constants {
     public final static class SEND_MAIL_SUBJECT {
         public final static String USER_REGISTER = "ĐƯỜNG DẪN XÁC NHẬN THÔNG TIN NGƯỜI DÙNG ĐĂNG KÝ";
         public final static String USER_FORGET_PASSWORD = "MÃ XÁC NHẬN LẤY LẠI TÀI KHOẢN NGƯỜI DÙNG";
-
+        public static final String REQUEST_JOIN_FAMILY_TREE = "Yêu cầu tham gia sơ đồ {0}";
     }
     public final static class TEMPLATE_FILE_NAME {
         public final static String USER_FORGET_PASSWORD = "user_forget_password_email";
         public final static String VERIFY_USER = "verify_user_email";
-
+        public static final String REQUEST_JOIN_FAMILY_TREE = "request_join_family";
     }
 
     /* Validate */
-    public static final String INVALID_DATA_FIELD = "Invalid Data Field!";
-    public static final String INVALID_EMAIL = "Invalid email address!";
+    public static final String INVALID_DATA_FIELD = "Dữ liệu không hợp lệ!";
+    public static final String INVALID_EMAIL = "Email không hợp lệ!";
     public static final String INVALID_NOTNULL = "Must not be null!";
     public static final String INVALID_EMPTY = "Must not be empty!";
-    public static final String INVALID_FILE_IMAGE = "The input data must be the image link (.png or .jpg)";
-    public static final String INVALID_PASSWORD_MIN_LENGTH = "Password must be between 8 and 20 characters";
-    public static final String INVALID_USERNAME_MIN_LENGTH = "Username must be between 6 and 20 characters";
-    public static final String INVALID_BIRTHDAY = "Birthday must be before current time!";
+    public static final String INVALID_FILE_IMAGE = "Ảnh phải ở định dạng png hoặc jpg";
+    public static final String INVALID_PASSWORD_MIN_LENGTH = "Độ dài mật khẩu phải từ 8 đến 20 kí tự";
+    public static final String INVALID_USERNAME_MIN_LENGTH = "Độ dài username phải trong khoảng 6 đến 20 kí tự";
+    public static final String INVALID_BIRTHDAY = "Ngày sinh không hợp lệ!";
 
     /* Message */
 //    public static final String

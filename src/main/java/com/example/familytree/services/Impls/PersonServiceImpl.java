@@ -164,7 +164,17 @@ public class PersonServiceImpl implements PersonService {
         int gender = person.getPersonGender() ? 1 : 0;
 
         String sql = "INSERT INTO person(person_id, person_name, person_gender, person_DOB, person_job, person_religion, person_ethnic, person_DOD, person_address, family_tree_id, person_status, person_rank, person_description, person_story, person_is_deleted, person_image, sibling_num, group_child_id) " +
-                "VALUES(" + personId + ",N'" + person.getPersonName() + "'," + gender + ",'" + person.getPersonDob() + "',N'" + person.getPersonJob() + "',N'" + person.getPersonReligion() + "',N'" + person.getPersonEthnic() + "','" + person.getPersonDod() + "',N'" + person.getPersonAddress() + "'," + fid + "," + 1 + "," + person.getPersonRank() + ",N'" + person.getPersonDescription() + "',N'" + person.getPersonStory() + "'," + 0 + ",'" +  person.getPersonImage() + "'," + person.getSiblingNum() + "," + groupChild + ")";
+                "VALUES(" + personId + ",N'" + person.getPersonName() + "'," + gender + "," +
+                (person.getPersonDob() == null?"NULL":("'" + person.getPersonDob() + "'")) + "," +
+                (person.getPersonJob() == null?"NULL":("N'" + person.getPersonJob() + "'")) + "," +
+                (person.getPersonReligion() == null?"NULL":("N'" + person.getPersonReligion() + "'")) + "," +
+                (person.getPersonEthnic() == null?"NULL":("N'" + person.getPersonEthnic() + "'")) + "," +
+                (person.getPersonDod() == null?"NULL":("'" + person.getPersonDod() + "'")) + "," +
+                (person.getPersonAddress() == null?"NULL":("N'" + person.getPersonAddress() + "'")) + "," +
+                fid + "," + 1 + "," + person.getPersonRank() + "," +
+                (person.getPersonDescription() == null?"NULL":("N'" + person.getPersonDescription() + "'")) + "," +
+                (person.getPersonStory() == null?"NULL":("N'" + person.getPersonStory() + "'")) + "," + 0 + "," +
+                (person.getPersonImage() == null?"NULL":("'" + person.getPersonImage() + "'")) + "," + person.getSiblingNum() + "," + groupChild + ")";
         jdbcTemplate.execute(sql);
         String jqlOFF = "SET IDENTITY_INSERT Person OFF";
         jdbcTemplate.execute(jqlOFF);

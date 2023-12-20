@@ -1,8 +1,13 @@
 package com.example.familytree.services.Impls;
 
 
+import com.example.familytree.entities.FamilyTreeEntity;
+import com.example.familytree.entities.FamilyTreeUserEntity;
 import com.example.familytree.entities.UserAccountEntity;
 import com.example.familytree.models.dto.DataMailDto;
+import com.example.familytree.repositories.FamilyTreeRepo;
+import com.example.familytree.repositories.FamilyTreeUserRepo;
+import com.example.familytree.repositories.UserAccountRepo;
 import com.example.familytree.services.MailService;
 import com.example.familytree.services.SendMailService;
 import com.example.familytree.shareds.Constants;
@@ -12,7 +17,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -20,6 +27,8 @@ import java.util.Map;
 @AllArgsConstructor
 public class SendMailServiceImpl implements SendMailService {
     private MailService mailService;
+    private FamilyTreeUserRepo familyTreeUserRepo;
+    private UserAccountRepo userAccountRepo;
 
     private void putPropsDataMail(DataMailDto dataMail, String URL, String fullName, String email) throws MessagingException {
         Map<String, Object> props = new HashMap<>();
@@ -69,8 +78,26 @@ public class SendMailServiceImpl implements SendMailService {
         }
     }
 
+    @Override
+    @Async
+    public void requestJoinFamilyTree(UserAccountEntity user, FamilyTreeEntity familyTree) {
+        try {
+            List<FamilyTreeUserEntity> familyTreeUserEntityList = familyTreeUserRepo.findByFamilyTreeId(familyTree.getFamilyTreeId()).stream().filter(p -> p.getRoleId() > 1).toList();
+            for (FamilyTreeUserEntity item: familyTreeUserEntityList) {
+                UserAccountEntity userAccount = userAccountRepo.findFirstByUserId(item.getUserId());
+                DataMailDto dataMail = new DataMailDto();
 
+                dataMail.setTo(userAccount.getUserEmail());
+                dataMail.setSubject(MessageFormat.format(Constants.SEND_MAIL_SUBJECT.REQUEST_JOIN_FAMILY_TREE, familyTree.getFamilyTreeName()));
 
+                Map<String, Object> props = new HashMap<>();
+                props.put("message", MessageFormat.format(Constants.REQUEST_JOIN_FAMILY_TREE_MESSAGE,user.getUserFullname(), familyTree.getFamilyTreeName()));
+                dataMail.setProps(props);
 
-
+                mailService.sendHtmlMail(dataMail, Constants.TEMPLATE_FILE_NAME.REQUEST_JOIN_FAMILY_TREE);
+            }
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
