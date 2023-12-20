@@ -146,7 +146,7 @@ public class PersonServiceImpl implements PersonService {
         String jqlON = "SET IDENTITY_INSERT Person ON";
         jdbcTemplate.execute(jqlON);
         String sql = "INSERT INTO person(person_id, person_name, person_gender, family_tree_id, person_status) " +
-                                "values(" + pid + ", 'PersonName', 1," + fid + ", 1)";
+                "values(" + pid + ", 'PersonName', 1," + fid + ", 1)";
 //        String sql = "INSERT INTO person(person_id, person_name, person_gender, person_DOB, person_job, person_religion, person_ethnic, person_DOD, person_address, parents_id, family_tree_id, person_status, person_rank, person_description, person_story, father_id, mother_id, person_is_deleted, person_created_at, person_updated_at, person_deleted_at, person_image, sibling_num, group_child_id ) " +
 //                "values(100, 'Nguoi 100', 1, 8, 1)";
         jdbcTemplate.execute(sql);
