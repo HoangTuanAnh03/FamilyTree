@@ -138,6 +138,12 @@ public class Constants {
         public static final String REQUEST_JOIN_FAMILY_TREE = "request_join_family";
     }
 
+    public final static class HISTORY_ENUM {
+        public final static String CREATED = "CREATED";
+        public final static String UPDATED = "UPDATED";
+        public static final String DELETED = "DELETED";
+    }
+
     /* Validate */
     public static final String INVALID_DATA_FIELD = "Dữ liệu không hợp lệ!";
     public static final String INVALID_EMAIL = "Email không hợp lệ!";

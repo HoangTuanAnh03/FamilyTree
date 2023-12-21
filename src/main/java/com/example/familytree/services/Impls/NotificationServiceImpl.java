@@ -5,11 +5,9 @@ import com.example.familytree.entities.NotificationEntity;
 import com.example.familytree.entities.PersonEntity;
 import com.example.familytree.entities.UserAccountEntity;
 import com.example.familytree.enums.NotiTypeEnum;
-import com.example.familytree.models.dto.PersonDto;
 import com.example.familytree.repositories.FamilyTreeRepo;
 import com.example.familytree.repositories.FamilyTreeUserRepo;
 import com.example.familytree.repositories.NotificationRepo;
-import com.example.familytree.repositories.UserAccountRepo;
 import com.example.familytree.services.NotificationService;
 import com.example.familytree.shareds.Constants;
 import com.nimbusds.jose.shaded.gson.Gson;
@@ -36,7 +34,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void createMultiple(NotificationEntity eNoti, ArrayList<Integer> ids) {
         List<NotificationEntity> notifications = new ArrayList<>();
         for (int id : ids) {
-            notifications.add(NotificationEntity.create(0, eNoti.getType(), eNoti.getSenderId(), id, eNoti.getContent()));
+            notifications.add(NotificationEntity.create(0, eNoti.getType(), eNoti.getSenderId(), id, eNoti.getContent(), eNoti.getCreatedAt()));
         }
         notificationRepo.saveAll(notifications);
     }
@@ -69,14 +67,13 @@ public class NotificationServiceImpl implements NotificationService {
         Gson gson = new Gson();
         String content = gson.toJson(mapContent);
 
-        NotificationEntity noti = NotificationEntity.create(0, type.getDescription(), user.getUserId(), 0, content);
+        NotificationEntity noti = NotificationEntity.create(0, type.getDescription(), user.getUserId(), 0, content, Constants.getCurrentDay());
 
         ArrayList<Integer> ids = new ArrayList<>();
         List<FamilyTreeUserEntity> listUser = familyTreeUserRepo.findByFamilyTreeIdAndUserTreeStatus(person.getFamilyTreeId(), true);
         for (FamilyTreeUserEntity familyTreeUserEntity : listUser) {
             ids.add(familyTreeUserEntity.getUserId());
         }
-        
 
         this.createMultipleAsync(noti, ids);
     }

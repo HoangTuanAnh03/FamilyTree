@@ -21,8 +21,8 @@ public class HistoryEntity {
     @Column(name = "user_id", nullable = false)
     private int userId;
     @Basic
-    @Column(name = "history_action", nullable = false)
-    private int historyAction;
+    @Column(name = "history_action", nullable = false, length = 50)
+    private String historyAction;
     @Basic
     @Column(name = "family_tree_id", nullable = false)
     private int familyTreeId;

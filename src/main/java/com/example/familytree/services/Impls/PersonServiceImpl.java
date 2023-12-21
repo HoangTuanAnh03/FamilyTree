@@ -417,7 +417,7 @@ public class PersonServiceImpl implements PersonService {
         );
         spouseRepo.save(newSpouse);
 
-        return null;
+        return newChildren;
     }
 
     @Override

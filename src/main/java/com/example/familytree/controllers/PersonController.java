@@ -2,16 +2,19 @@ package com.example.familytree.controllers;
 
 
 import com.example.familytree.entities.*;
+import com.example.familytree.enums.HistoryTypeEnum;
 import com.example.familytree.enums.NotiTypeEnum;
 import com.example.familytree.models.ApiResult;
 import com.example.familytree.models.dto.PersonDto;
 import com.example.familytree.models.dto.UpdatePersonDto;
 import com.example.familytree.repositories.*;
+import com.example.familytree.services.HistoryService;
 import com.example.familytree.services.NotificationService;
 import com.example.familytree.services.PersonService;
 import com.example.familytree.shareds.Constants;
 import com.example.familytree.utils.BearerTokenUtil;
 import com.example.familytree.utils.SearchPersonByName;
+import com.nimbusds.jose.shaded.gson.Gson;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,7 @@ public class PersonController {
     private final FamilyTreeUserRepo familyTreeUserRepo;
     private final FamilyTreeRepo familyTreeRepo;
     private final NotificationService notificationService;
+    private final HistoryService historyService;
 
     @GetMapping(path = "/getInfo")
     public ResponseEntity<ApiResult<?>> getInfoPerson(@RequestParam int personId, HttpServletRequest request) {
@@ -95,7 +99,9 @@ public class PersonController {
                 "Tạo người Preson đầu tiên trong cây thành công!",
                 newPerson
         );
+
         notificationService.HandleInsertNotification(newPerson, userByEmail, NotiTypeEnum.CREATE_PERSON);
+        historyService.HandleInsertHistory(userByEmail, newPerson, HistoryTypeEnum.CREATED, null);
 
         return ResponseEntity.ok(result);
     }
@@ -128,6 +134,7 @@ public class PersonController {
         }
         PersonEntity newPerson = personService.createParents(personDto, personId);
         notificationService.HandleInsertNotification(newPerson, userByEmail, NotiTypeEnum.CREATE_PERSON);
+        historyService.HandleInsertHistory(userByEmail, newPerson, HistoryTypeEnum.CREATED, null);
 
         result = ApiResult.create(HttpStatus.OK, Constants.ADD_PARENTS_SUCCESS, newPerson);
         return ResponseEntity.ok(result);
@@ -209,6 +216,7 @@ public class PersonController {
         //         Gọi service
         PersonEntity newChildren =  personService.createChildren(childrenDto, siblingId);
         notificationService.HandleInsertNotification(newChildren, userByEmail, NotiTypeEnum.CREATE_PERSON);
+        historyService.HandleInsertHistory(userByEmail, newChildren, HistoryTypeEnum.CREATED, null);
 
         result = ApiResult.create(HttpStatus.OK, Constants.ADD_CHILD_SUCCESS, newChildren);
         return ResponseEntity.ok(result);
@@ -240,6 +248,7 @@ public class PersonController {
 
         PersonEntity newPerson = personService.createSpouse(personDto, personId);
         notificationService.HandleInsertNotification(newPerson, userByEmail, NotiTypeEnum.CREATE_PERSON);
+        historyService.HandleInsertHistory(userByEmail, newPerson, HistoryTypeEnum.CREATED, null);
 
         result = ApiResult.create(HttpStatus.OK, "Thêm thành công vợ hoặc chồng", null);
         return ResponseEntity.ok(result);
@@ -327,6 +336,7 @@ public class PersonController {
         }
         PersonEntity updatePerson = personService.updatePerson(newPerson);
         notificationService.HandleInsertNotification(updatePerson, userByEmail, NotiTypeEnum.UPDATE_PERSON);
+        historyService.HandleInsertHistory(userByEmail, updatePerson, HistoryTypeEnum.UPDATED, personById);
 
         result = ApiResult.create(HttpStatus.OK, Constants.UPDATE_PERSON_SUCCESS, newPerson);
         return ResponseEntity.ok(result);
@@ -356,6 +366,7 @@ public class PersonController {
         personRepo.save(personByPersonId);
 
         notificationService.HandleInsertNotification(personByPersonId, userByEmail, NotiTypeEnum.DELETE_PERSON);
+        historyService.HandleInsertHistory(userByEmail, personByPersonId, HistoryTypeEnum.DELETED, null);
 
         result = ApiResult.create(HttpStatus.OK, "Xoá thành công Person", null);
         return ResponseEntity.ok(result);

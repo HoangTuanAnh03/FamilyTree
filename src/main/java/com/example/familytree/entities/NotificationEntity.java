@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -27,5 +29,7 @@ public class NotificationEntity {
     @Basic
     @Column(name = "content", nullable = true, length = 2147483647)
     private String content;
-
+    @Basic
+    @Column(name = "created_at", nullable = false)
+    private Date createdAt;
 }
