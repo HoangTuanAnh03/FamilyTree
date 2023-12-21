@@ -38,7 +38,7 @@ public class PersonServiceImpl implements PersonService {
             List<SpouseEntity> listSpouseByHusbandId = spouseRepo.findByHusbandIdAndSpouseStatus(personId, 1);
             for (SpouseEntity spouseEntity : listSpouseByHusbandId){
                 PersonEntity personByWife = personRepo.findFirstByPersonId(spouseEntity.getWifeId());
-                if (!personByWife.getPersonIsDeleted())
+                if (personByWife != null && !personByWife.getPersonIsDeleted())
                     wife.add(spouseEntity.getWifeId());
             }
 
@@ -46,7 +46,7 @@ public class PersonServiceImpl implements PersonService {
             List<SpouseEntity> listSpouseByWifeId = spouseRepo.findByWifeIdAndSpouseStatus(personId, 1);
             for (SpouseEntity spouseEntity : listSpouseByWifeId) {
                 PersonEntity personByHusband = personRepo.findFirstByPersonId(spouseEntity.getWifeId());
-                if (!personByHusband.getPersonIsDeleted())
+                if (personByHusband != null && !personByHusband.getPersonIsDeleted())
                     husband.add(spouseEntity.getHusbandId());
             }
         }
