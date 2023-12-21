@@ -3,12 +3,14 @@ package com.example.familytree.services.Impls;
 import com.example.familytree.entities.PersonEntity;
 import com.example.familytree.entities.SpouseEntity;
 import com.example.familytree.entities.UserAccountEntity;
+import com.example.familytree.enums.HistoryTypeEnum;
 import com.example.familytree.enums.NotiTypeEnum;
 import com.example.familytree.models.dto.PersonDto;
 import com.example.familytree.models.dto.UpdatePersonDto;
 import com.example.familytree.models.response.InfoAddPersonResponse;
 import com.example.familytree.repositories.PersonRepo;
 import com.example.familytree.repositories.SpouseRepo;
+import com.example.familytree.services.HistoryService;
 import com.example.familytree.services.NotificationService;
 import com.example.familytree.services.PersonService;
 import com.example.familytree.shareds.Constants;
@@ -28,6 +30,7 @@ public class PersonServiceImpl implements PersonService {
     private final SpouseRepo spouseRepo;
     private final JdbcTemplate jdbcTemplate;
     private final NotificationService notificationService;
+    private final HistoryService historyService;
 
     @Override
     public InfoAddPersonResponse getInfoPerson(int personId, String option) {
@@ -194,7 +197,7 @@ public class PersonServiceImpl implements PersonService {
         PersonEntity personResult = personRepo.findFirstByPersonId(personId);
 
         notificationService.HandleInsertNotification(personResult, userByEmail, NotiTypeEnum.CREATE_PERSON);
-
+        historyService.HandleInsertHistory(userByEmail, personResult, HistoryTypeEnum.CREATED, null);
         return personResult;
     }
 
