@@ -468,7 +468,7 @@ public class GetPersonByCenter {
                                  ArrayList<SpouseEntity> spouses,
                                  Map<Integer, Integer> fatherSide,
                                  Map<Integer, Boolean> intestine,
-                                 Integer centerId) {
+                                 Integer centerId, ArrayList<Integer> personIdInTheMainTree2) {
         Set<Integer> personTemp = new HashSet<>();
         for (int i = 0; i < personIdInTheMainTree.size(); i++) {
             if(personIdInTheMainTree.get(i).equals(centerId)){
@@ -492,7 +492,9 @@ public class GetPersonByCenter {
                     }
                 }
                 if (!isChildOfCenter) {
-                    personsWithCenter.addAll(getPersonIdBySpouseId(spouses, personId, persons));
+                    if(!personIdInTheMainTree2.contains(personId)){
+                        personsWithCenter.addAll(getPersonIdBySpouseId(spouses, personId, persons));
+                    }
                     ArrayList<Integer> spousePidList = getPersonIdBySpouseId(spouses, personId, persons);
                     for(int x: spousePidList){
                         fatherSide.putIfAbsent(x, isFatherSide);
@@ -505,7 +507,7 @@ public class GetPersonByCenter {
                 if ((Objects.equals(gender, "Male") && person.getFatherId() != null && person.getFatherId().intValue() == personId) || (Objects.equals(gender, "Female") && person.getMotherId() != null && person.getMotherId().intValue() == personId)) {
 
                     int childPersonId = person.getPersonId();
-                    if(childPersonId == centerId || !personIdInTheMainTree.contains(childPersonId)) {
+                    if(childPersonId == centerId || !personIdInTheMainTree2.contains(childPersonId)) {
                         personsWithCenter.add(childPersonId);
                         intestine.putIfAbsent(childPersonId, Boolean.TRUE);
                         fatherSide.putIfAbsent(childPersonId, isFatherSide);
@@ -522,7 +524,7 @@ public class GetPersonByCenter {
             }
         }
         if (!personTemp.isEmpty()) {
-            getPerson(personsWithCenter, new ArrayList<>(personTemp), persons, spouses, fatherSide, intestine, centerId);
+            getPerson(personsWithCenter, new ArrayList<>(personTemp), persons, spouses, fatherSide, intestine, centerId, personIdInTheMainTree2);
         }
     }
     public static PersonInfoDisplay getInfor(ArrayList<Integer> personsWithCenter,
@@ -588,7 +590,7 @@ public class GetPersonByCenter {
         getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide, intestine);
 
         ArrayList<Integer> personsWithCenter = new ArrayList<>(personIdInTheMainTree);
-        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine, personCenterId);
+        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine, personCenterId, personIdInTheMainTree);
 
         Set<Integer> sett = new LinkedHashSet<>(personsWithCenter);
         personsWithCenter.clear();
@@ -663,7 +665,7 @@ public class GetPersonByCenter {
         getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide, intestine);
 
         ArrayList<Integer> personsWithCenter = new ArrayList<>(personIdInTheMainTree);
-        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine, personCenterId);
+        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine, personCenterId, personIdInTheMainTree);
 
         Set<Integer> sett = new LinkedHashSet<>(personsWithCenter);
         personsWithCenter.clear();
@@ -711,7 +713,7 @@ public class GetPersonByCenter {
         getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide, intestine);
 
         ArrayList<Integer> personsWithCenter = new ArrayList<>(personIdInTheMainTree);
-        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine, personCenterId);
+        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine, personCenterId, personIdInTheMainTree);
 
         Set<Integer> sett = new LinkedHashSet<>(personsWithCenter);
         personsWithCenter.clear();
@@ -799,7 +801,7 @@ public class GetPersonByCenter {
         getTheMainTree(personIdInTheMainTree, personCenterId, listPerson, personWithSide, "", 0, fatherSide, intestine);
 
         ArrayList<Integer> personsWithCenter = new ArrayList<>(personIdInTheMainTree);
-        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine, personCenterId);
+        getPerson(personsWithCenter, personIdInTheMainTree, listPerson, listSpouse, fatherSide, intestine, personCenterId, personIdInTheMainTree);
 
         Set<Integer> sett = new LinkedHashSet<>(personsWithCenter);
         personsWithCenter.clear();

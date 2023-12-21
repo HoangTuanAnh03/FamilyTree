@@ -35,7 +35,7 @@ public class PersonServiceImpl implements PersonService {
 
         // Nữ 0 Nam 1
         if (personById.getPersonGender()) {
-            List<SpouseEntity> listSpouseByHusbandId = spouseRepo.findByHusbandIdAndSpouseStatus(personId, 1);
+            List<SpouseEntity> listSpouseByHusbandId = spouseRepo.findByHusbandIdAndSpouseStatus(personId, 1).stream().filter(x -> x.getWifeId() != null).toList();
             for (SpouseEntity spouseEntity : listSpouseByHusbandId){
                 PersonEntity personByWife = personRepo.findFirstByPersonId(spouseEntity.getWifeId());
                 if (personByWife != null && !personByWife.getPersonIsDeleted())
@@ -43,9 +43,9 @@ public class PersonServiceImpl implements PersonService {
             }
 
         } else {
-            List<SpouseEntity> listSpouseByWifeId = spouseRepo.findByWifeIdAndSpouseStatus(personId, 1);
+            List<SpouseEntity> listSpouseByWifeId = spouseRepo.findByWifeIdAndSpouseStatus(personId, 1).stream().filter(x -> x.getHusbandId() != null).toList();
             for (SpouseEntity spouseEntity : listSpouseByWifeId) {
-                PersonEntity personByHusband = personRepo.findFirstByPersonId(spouseEntity.getWifeId());
+                PersonEntity personByHusband = personRepo.findFirstByPersonId(spouseEntity.getHusbandId());
                 if (personByHusband != null && !personByHusband.getPersonIsDeleted())
                     husband.add(spouseEntity.getHusbandId());
             }
@@ -450,6 +450,16 @@ public class PersonServiceImpl implements PersonService {
                 1
         );
         spouseRepo.save(newSpouse);
+        // Tạo Spouse rỗng
+        if ((newPerson.getPersonGender() && spouseRepo.findByHusbandId(newPerson.getPersonId()).stream().filter(x -> x.getWifeId() == null).toList().isEmpty()) || (!newPerson.getPersonGender() && spouseRepo.findByWifeId(newPerson.getPersonId()).stream().filter(x -> x.getHusbandId() == null).toList().isEmpty())){
+            SpouseEntity newSpouse1 = SpouseEntity.create(
+                    0,
+                    (newPerson.getPersonGender() ? newPerson.getPersonId() : null),
+                    (newPerson.getPersonGender() ? null : newPerson.getPersonId()),
+                    1
+            );
+            spouseRepo.save(newSpouse1);
+        }
         personRepo.save(newPerson);
         return newPerson;
     }
