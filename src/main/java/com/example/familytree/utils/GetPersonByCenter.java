@@ -471,7 +471,15 @@ public class GetPersonByCenter {
                                  Integer centerId) {
         Set<Integer> personTemp = new HashSet<>();
         for (int i = 0; i < personIdInTheMainTree.size(); i++) {
-
+            if(personIdInTheMainTree.get(i).equals(centerId)){
+                ArrayList<Integer> spousePidList2 = getPersonIdBySpouseId(spouses, centerId, persons);
+                int isFatherSideBySpouse = fatherSide.get(centerId);
+                personsWithCenter.addAll(spousePidList2);
+                for (int x : spousePidList2) {
+                    fatherSide.putIfAbsent(x, isFatherSideBySpouse);
+                    intestine.putIfAbsent(x, Boolean.FALSE);
+                }
+            }
             int personId = personIdInTheMainTree.get(i);
             int isFatherSide = fatherSide.get(personId);
             int parentId = getParentIdByPersonId(personId, persons);
