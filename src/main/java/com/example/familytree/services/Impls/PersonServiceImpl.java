@@ -36,18 +36,26 @@ public class PersonServiceImpl implements PersonService {
         // Nữ 0 Nam 1
         if (personById.getPersonGender()) {
             List<SpouseEntity> listSpouseByHusbandId = spouseRepo.findByHusbandIdAndSpouseStatus(personId, 1);
-            for (SpouseEntity spouseEntity : listSpouseByHusbandId)
-                wife.add(spouseEntity.getWifeId());
+            for (SpouseEntity spouseEntity : listSpouseByHusbandId){
+                PersonEntity personByWife = personRepo.findFirstByPersonId(spouseEntity.getWifeId());
+                if (!personByWife.getPersonIsDeleted())
+                    wife.add(spouseEntity.getWifeId());
+            }
+
         } else {
             List<SpouseEntity> listSpouseByWifeId = spouseRepo.findByWifeIdAndSpouseStatus(personId, 1);
-            for (SpouseEntity spouseEntity : listSpouseByWifeId)
-                husband.add(spouseEntity.getHusbandId());
+            for (SpouseEntity spouseEntity : listSpouseByWifeId) {
+                PersonEntity personByHusband = personRepo.findFirstByPersonId(spouseEntity.getWifeId());
+                if (!personByHusband.getPersonIsDeleted())
+                    husband.add(spouseEntity.getHusbandId());
+            }
         }
         // Tìm anh chị em cùng parentID trong bảng Person
         if (personById.getParentsId() != null) {
             List<PersonEntity> listPersonByParentsId = personRepo.findByParentsId(personById.getParentsId());
             for (PersonEntity personEntity : listPersonByParentsId)
-                sibling.add(personEntity.getPersonId());
+                if (!personEntity.getPersonIsDeleted())
+                    sibling.add(personEntity.getPersonId());
             // Xoá chính người có personId trong sibling
             sibling.removeIf(child -> child == personId);
         }
@@ -63,7 +71,8 @@ public class PersonServiceImpl implements PersonService {
         for (SpouseEntity spouseEntity : listSpouseByHusbandIdOrWifeId) {
             List<PersonEntity> listPersonByParentID = personRepo.findByParentsId(spouseEntity.getSpouseId());
             for (PersonEntity personEntity : listPersonByParentID) {
-                children.add(personEntity.getPersonId());
+                if (!personEntity.getPersonIsDeleted())
+                    children.add(personEntity.getPersonId());
             }
         }
         // Hiển thị thông tin cá nhân theo option
