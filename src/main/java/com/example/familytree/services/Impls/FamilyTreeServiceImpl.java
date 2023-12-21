@@ -148,10 +148,8 @@ public class FamilyTreeServiceImpl implements FamilyTreeService {
         List<SpouseEntity> listSpouse = getListSharingSpouse(listPerson);
 
         // Tìm personID nhỏ nhất
-        ArrayList<Integer> listPersonId = new ArrayList<>();
         int minPersonId = listPerson.get(0).getPersonId();
         for (PersonEntity personEntity : listPerson){
-            listPersonId.add(personEntity.getPersonId());
             if (personEntity.getPersonId() < minPersonId)
                 minPersonId = personEntity.getPersonId();
         }
@@ -179,6 +177,7 @@ public class FamilyTreeServiceImpl implements FamilyTreeService {
             }
 
         }
+
 
         /*Copy Spouse*/
         for (SpouseEntity spouseEntity : listSpouse) {
@@ -211,8 +210,10 @@ public class FamilyTreeServiceImpl implements FamilyTreeService {
         for (PersonEntity personEntity : listPerson) {
             if (personEntity.getParentsId() != null) {
                 PersonEntity personCopy = personRepo.findFirstByPersonId(personEntity.getPersonId() + rangePersonId);
-                personCopy.setParentsId(personEntity.getParentsId() + rangeSpouseId);
-                personRepo.save(personCopy);
+                if(spouseRepo.existsById(personEntity.getParentsId() + rangeSpouseId)){
+                    personCopy.setParentsId(personEntity.getParentsId() + rangeSpouseId);
+                    personRepo.save(personCopy);
+                }
             }
         }
 
@@ -225,7 +226,6 @@ public class FamilyTreeServiceImpl implements FamilyTreeService {
         familyTreeUserRepo.save(newFamilyTreeUser);
         return newFamilyTree;
     }
-
 
     @Override
     public List<PersonEntity> getListSharingPerson(int ft, int pid, int side) {
@@ -247,7 +247,6 @@ public class FamilyTreeServiceImpl implements FamilyTreeService {
         listSpouse.addAll(set);
         return GetPersonByCenter.sharingListPerson(ft, pid, listSpouse, listPerson, side); //side = 3: ALL, side = 1: Lấy bên Ngoại, side = 2: Lấy bên nội
     }
-
 
     @Override
     public List<SpouseEntity> getListSharingSpouse(List<PersonEntity> listPerson) {

@@ -1,6 +1,5 @@
 package com.example.familytree.controllers;
 
-import com.example.familytree.entities.FamilyTreeEntity;
 import com.example.familytree.entities.FamilyTreeUserEntity;
 import com.example.familytree.entities.LinkSharingEntity;
 import com.example.familytree.entities.UserAccountEntity;

@@ -32,14 +32,6 @@ public class UserAccountController {
     private final UserAccountRepo userAccountRepo;
     private final OtpRepo otpRepo;
 
-//    @PutMapping(path = "/edit")
-//    public ResponseEntity<ApiResult<UpdateCustomerDto>> editInfoCustomer(@Valid @RequestBody UpdateCustomerDto updateCustomerDto) {
-//        userAccountService.edit(updateCustomerDto);
-//        ApiResult<UpdateCustomerDto> result = ApiResult.create(HttpStatus.OK, Constants.UPDATE_SUCCESS, updateCustomerDto);
-//        return ResponseEntity.ok(result);
-//    }
-
-
 
     @PostMapping(path = "/register")
     public ResponseEntity<ApiResult<UserAccountDto>> registerCustomer(@Valid @RequestBody UserAccountDto userAccountDto) throws MessagingException, NoSuchAlgorithmException {

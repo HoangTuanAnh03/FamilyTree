@@ -4,7 +4,6 @@ import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.net.http.HttpRequest;
 import java.util.Base64;
 
 public class BearerTokenUtil {

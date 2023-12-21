@@ -43,6 +43,8 @@ public class NotificationServiceImpl implements NotificationService {
         return CompletableFuture.runAsync(() -> createMultiple(eNoti, ids));
     }
 
+    @Override
+    @Transactional
     public void HandleInsertNotification(PersonEntity person, UserAccountEntity user, NotiTypeEnum type) {
         // Notification
         String familyTreeName = familyTreeRepo.findFirstByFamilyTreeId(person.getFamilyTreeId()).getFamilyTreeName();
@@ -53,16 +55,7 @@ public class NotificationServiceImpl implements NotificationService {
         mapContent.put(Constants.userName, user.getUserFullname());
         mapContent.put(Constants.userId, Integer.toString(user.getUserId()));
         mapContent.put(Constants.familyTreeId, person.getFamilyTreeId().toString());
-
-        String message = "";
-        switch (type) {
-            case CREATE_PERSON -> message = Constants.CREATE_PERSON_MESSAGE;
-            case UPDATE_PERSON -> message = Constants.UPDATE_PERSON_MESSAGE;
-            case DELETE_PERSON -> message = Constants.DELETE_PERSON_MESSAGE;
-            case JOIN_FAMILY_TREE -> message = Constants.JOIN_FAMILY_TREE_MESSAGE;
-            case REQUEST_JOIN_FAMILY_TREE -> message = Constants.REQUEST_JOIN_FAMILY_TREE_MESSAGE;
-        }
-        mapContent.put(Constants.message, MessageFormat.format(message,  user.getUserFullname(), person.getPersonName(), familyTreeName));
+        mapContent.put(Constants.message, MessageFormat.format(Constants.CREATE_PERSON_MESSAGE,  user.getUserFullname(), person.getPersonName(), familyTreeName));
 
         Gson gson = new Gson();
         String content = gson.toJson(mapContent);

@@ -2,7 +2,6 @@ package com.example.familytree.services.Impls;
 
 import com.example.familytree.entities.TreeNodeEntity;
 import com.example.familytree.repositories.TreeNodeRepo;
-import com.example.familytree.services.SpouseService;
 import com.example.familytree.services.TreeNodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

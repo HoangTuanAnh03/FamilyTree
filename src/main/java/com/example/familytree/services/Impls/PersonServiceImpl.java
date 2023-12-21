@@ -34,7 +34,7 @@ public class PersonServiceImpl implements PersonService {
         List<Integer> children = new ArrayList<>();
 
         // Nữ 0 Nam 1
-        if(personById.getPersonGender()){
+        if (personById.getPersonGender()) {
             List<SpouseEntity> listSpouseByHusbandId = spouseRepo.findByHusbandIdAndSpouseStatus(personId, 1);
             for (SpouseEntity spouseEntity : listSpouseByHusbandId)
                 wife.add(spouseEntity.getWifeId());
@@ -44,7 +44,7 @@ public class PersonServiceImpl implements PersonService {
                 husband.add(spouseEntity.getHusbandId());
         }
         // Tìm anh chị em cùng parentID trong bảng Person
-        if (personById.getParentsId() != null){
+        if (personById.getParentsId() != null) {
             List<PersonEntity> listPersonByParentsId = personRepo.findByParentsId(personById.getParentsId());
             for (PersonEntity personEntity : listPersonByParentsId)
                 sibling.add(personEntity.getPersonId());
@@ -55,12 +55,12 @@ public class PersonServiceImpl implements PersonService {
         // Phải tìm tất cả các spouseId của mình với mọi status
         // Tìm trong bảng Person với điều kiện parentsId bằng với listSpouseId tìm được bên trên
         List<SpouseEntity> listSpouseByHusbandIdOrWifeId;
-        if(personById.getPersonGender()){
+        if (personById.getPersonGender()) {
             listSpouseByHusbandIdOrWifeId = spouseRepo.findByHusbandId(personId);
         } else {
             listSpouseByHusbandIdOrWifeId = spouseRepo.findByWifeId(personId);
         }
-        for (SpouseEntity spouseEntity : listSpouseByHusbandIdOrWifeId){
+        for (SpouseEntity spouseEntity : listSpouseByHusbandIdOrWifeId) {
             List<PersonEntity> listPersonByParentID = personRepo.findByParentsId(spouseEntity.getSpouseId());
             for (PersonEntity personEntity : listPersonByParentID) {
                 children.add(personEntity.getPersonId());
@@ -78,7 +78,7 @@ public class PersonServiceImpl implements PersonService {
         infoAddPersonResponse.setHusband(husband);
         infoAddPersonResponse.setSibling(sibling);
         infoAddPersonResponse.setChildren(children);
-        if (option == "full") {
+        if (Objects.equals(option, "full")) {
             BeanUtils.copyProperties(personById, infoAddPersonResponse);
         }
 
@@ -146,9 +146,7 @@ public class PersonServiceImpl implements PersonService {
         String jqlON = "SET IDENTITY_INSERT Person ON";
         jdbcTemplate.execute(jqlON);
         String sql = "INSERT INTO person(person_id, person_name, person_gender, family_tree_id, person_status) " +
-                                "values(" + pid + ", 'PersonName', 1," + fid + ", 1)";
-//        String sql = "INSERT INTO person(person_id, person_name, person_gender, person_DOB, person_job, person_religion, person_ethnic, person_DOD, person_address, parents_id, family_tree_id, person_status, person_rank, person_description, person_story, father_id, mother_id, person_is_deleted, person_created_at, person_updated_at, person_deleted_at, person_image, sibling_num, group_child_id ) " +
-//                "values(100, 'Nguoi 100', 1, 8, 1)";
+                "values(" + pid + ", 'PersonName', 1," + fid + ", 1)";
         jdbcTemplate.execute(sql);
         String jqlOFF = "SET IDENTITY_INSERT Person OFF";
         jdbcTemplate.execute(jqlOFF);
@@ -165,16 +163,17 @@ public class PersonServiceImpl implements PersonService {
 
         String sql = "INSERT INTO person(person_id, person_name, person_gender, person_DOB, person_job, person_religion, person_ethnic, person_DOD, person_address, family_tree_id, person_status, person_rank, person_description, person_story, person_is_deleted, person_image, sibling_num, group_child_id) " +
                 "VALUES(" + personId + ",N'" + person.getPersonName() + "'," + gender + "," +
-                (person.getPersonDob() == null?"NULL":("'" + person.getPersonDob() + "'")) + "," +
-                (person.getPersonJob() == null?"NULL":("N'" + person.getPersonJob() + "'")) + "," +
-                (person.getPersonReligion() == null?"NULL":("N'" + person.getPersonReligion() + "'")) + "," +
-                (person.getPersonEthnic() == null?"NULL":("N'" + person.getPersonEthnic() + "'")) + "," +
-                (person.getPersonDod() == null?"NULL":("'" + person.getPersonDod() + "'")) + "," +
-                (person.getPersonAddress() == null?"NULL":("N'" + person.getPersonAddress() + "'")) + "," +
+                (person.getPersonDob() == null ? "NULL" : ("'" + person.getPersonDob() + "'")) + "," +
+                (person.getPersonJob() == null ? "NULL" : ("N'" + person.getPersonJob() + "'")) + "," +
+                (person.getPersonReligion() == null ? "NULL" : ("N'" + person.getPersonReligion() + "'")) + "," +
+                (person.getPersonEthnic() == null ? "NULL" : ("N'" + person.getPersonEthnic() + "'")) + "," +
+                (person.getPersonDod() == null ? "NULL" : ("'" + person.getPersonDod() + "'")) + "," +
+                (person.getPersonAddress() == null ? "NULL" : ("N'" + person.getPersonAddress() + "'")) + "," +
                 fid + "," + 1 + "," + person.getPersonRank() + "," +
-                (person.getPersonDescription() == null?"NULL":("N'" + person.getPersonDescription() + "'")) + "," +
-                (person.getPersonStory() == null?"NULL":("N'" + person.getPersonStory() + "'")) + "," + 0 + "," +
-                (person.getPersonImage() == null?"NULL":("'" + person.getPersonImage() + "'")) + "," + person.getSiblingNum() + "," + groupChild + ")";
+                (person.getPersonDescription() == null ? "NULL" : ("N'" + person.getPersonDescription() + "'")) + "," +
+                (person.getPersonStory() == null ? "NULL" : ("N'" + person.getPersonStory() + "'")) + "," + 0 + "," +
+                (person.getPersonImage() == null ? "NULL" : ("'" + person.getPersonImage() + "'")) + "," + person.getSiblingNum() + "," + groupChild + ")";
+
         jdbcTemplate.execute(sql);
         String jqlOFF = "SET IDENTITY_INSERT Person OFF";
         jdbcTemplate.execute(jqlOFF);
@@ -191,6 +190,7 @@ public class PersonServiceImpl implements PersonService {
         currentPerson.setPersonDob(newInfo.getPersonDob() == null ? currentPerson.getPersonDob() : newInfo.getPersonDob());
         currentPerson.setPersonJob(newInfo.getPersonJob() == null ? currentPerson.getPersonJob() : newInfo.getPersonJob());
         currentPerson.setPersonReligion(newInfo.getPersonReligion() == null ? currentPerson.getPersonReligion() : newInfo.getPersonReligion());
+        currentPerson.setPersonEthnic(newInfo.getPersonEthnic() == null ? currentPerson.getPersonEthnic() : newInfo.getPersonEthnic());
         currentPerson.setPersonDod(newInfo.getPersonDod() == null ? currentPerson.getPersonDod() : newInfo.getPersonDod());
         currentPerson.setPersonAddress(newInfo.getPersonAddress() == null ? currentPerson.getPersonAddress() : newInfo.getPersonAddress());
         currentPerson.setPersonStatus(newInfo.getPersonStatus() == null ? currentPerson.getPersonStatus() : newInfo.getPersonStatus());
@@ -216,7 +216,7 @@ public class PersonServiceImpl implements PersonService {
             /* Cập nhật SiblingNum */
             List<PersonEntity> listSibling = personRepo.findByGroupChildId(siblingBySiblingId.getGroupChildId());
             for (PersonEntity sibling : listSibling) {
-                if (sibling.getSiblingNum() > newInfo.getSiblingNum()){
+                if (sibling.getSiblingNum() > newInfo.getSiblingNum()) {
                     sibling.setSiblingNum(sibling.getSiblingNum() + 1);
                     personRepo.save(sibling);
                 }
@@ -267,7 +267,7 @@ public class PersonServiceImpl implements PersonService {
     public PersonEntity createParents(PersonDto parentDto, int personID) {
         PersonEntity person = personRepo.findFirstByPersonId(personID);
         // Thêm vào bảng Person
-        PersonEntity parentEntity =  createFirstPerson(parentDto);
+        PersonEntity parentEntity = createFirstPerson(parentDto);
         // Set lại đời rank
         parentEntity.setPersonRank(person.getPersonRank() + 1);
         personRepo.save(parentEntity);
@@ -292,7 +292,7 @@ public class PersonServiceImpl implements PersonService {
         }
 
         /* Trường hợp muốn thêm bố và nhưng đã có mẹ */
-        if (parentDto.getPersonGender() && person.getMotherId() != null ) {
+        if (parentDto.getPersonGender() && person.getMotherId() != null) {
             // Tạo Spouse mới
             SpouseEntity newSpouse = SpouseEntity.create(
                     0,
@@ -306,7 +306,7 @@ public class PersonServiceImpl implements PersonService {
             personRepo.save(person);
         }
         /* Trường hợp muốn thêm mẹ và nhưng đã có bố tương tự bên trên */
-        if (!parentDto.getPersonGender() && person.getFatherId() != null ) {
+        if (!parentDto.getPersonGender() && person.getFatherId() != null) {
             // Tạo Spouse mới
             SpouseEntity newSpouse = SpouseEntity.create(
                     0,
@@ -332,40 +332,44 @@ public class PersonServiceImpl implements PersonService {
         double siblingNum = 1.0;
         Integer groupChildId = null;
 
-        /* Cập nhật GroupSiblingId c*/
-        PersonEntity siblingBySiblingId = personRepo.findFirstByPersonId(siblingId);
-        if (siblingBySiblingId != null)
+        if (siblingId != 0){
+            /* Cập nhật GroupSiblingId c*/
+            PersonEntity siblingBySiblingId = personRepo.findFirstByPersonId(siblingId);
+//            if (siblingBySiblingId != null)
             groupChildId = siblingBySiblingId.getGroupChildId();
 
-        /* Cập nhật SiblingNum */
-        List<PersonEntity> listSibling = personRepo.findByGroupChildId(siblingId);
-        if (!listSibling.isEmpty()) {
-            for (PersonEntity sibling : listSibling) {
-                if (sibling.getSiblingNum() > childrenDto.getSiblingNum()){
-                    sibling.setSiblingNum(sibling.getSiblingNum() + 1);
-                    personRepo.save(sibling);
+            /* Cập nhật SiblingNum */
+            List<PersonEntity> listSibling = personRepo.findByGroupChildId(siblingBySiblingId.getGroupChildId());
+            if (!listSibling.isEmpty()) {
+                for (PersonEntity sibling : listSibling) {
+                    if (sibling.getSiblingNum() > childrenDto.getSiblingNum()) {
+                        sibling.setSiblingNum(sibling.getSiblingNum() + 1);
+                        personRepo.save(sibling);
+                    }
                 }
+                siblingNum = childrenDto.getSiblingNum() + 0.5;
             }
-            siblingNum = childrenDto.getSiblingNum() + 0.5;
         }
 
 
+
+
         /* Trường hợp có cả FatherId và MotherId */
-        if (fatherId != null && motherId != null){
+        if (fatherId != null && motherId != null) {
             SpouseEntity spouseByFatherAndMother = spouseRepo.findFirstByHusbandIdAndWifeId(fatherId, motherId);
             // Thêm dữ liệu vào trường parentId của Children
             parentId = spouseByFatherAndMother.getSpouseId();
             rank = personRepo.findFirstByPersonId(fatherId).getPersonRank() - 1;
         }
         /* Trươờng hợp chỉ có FatherId */
-        if (fatherId != null && motherId == null){
+        if (fatherId != null && motherId == null) {
             SpouseEntity spouseByFatherAndMother = spouseRepo.findFirstByHusbandIdAndWifeId(fatherId, null);
             // Thêm dữ liệu vào trường parentId của Children
             parentId = spouseByFatherAndMother.getSpouseId();
             rank = personRepo.findFirstByPersonId(fatherId).getPersonRank() - 1;
         }
         /* Trươờng hợp chỉ có MotherId */
-        if (fatherId == null && motherId != null){
+        if (fatherId == null && motherId != null) {
             SpouseEntity spouseByFatherAndMother = spouseRepo.findFirstByHusbandIdAndWifeId(null, motherId);
             // Thêm dữ liệu vào trường parentId của Children
             parentId = spouseByFatherAndMother.getSpouseId();
@@ -373,7 +377,7 @@ public class PersonServiceImpl implements PersonService {
         }
 
         // Thêm vào bảng Person
-        PersonEntity newChildren =  PersonEntity.create(
+        PersonEntity newChildren = PersonEntity.create(
                 0,
                 childrenDto.getPersonName(),
                 childrenDto.getPersonGender(),
@@ -425,7 +429,7 @@ public class PersonServiceImpl implements PersonService {
     public PersonEntity createSpouse(PersonDto personDto, int personID) {
         PersonEntity person = personRepo.findFirstByPersonId(personID);
         // Thêm vào bảng Person
-        PersonEntity newPerson =  createFirstPerson(personDto);
+        PersonEntity newPerson = createFirstPerson(personDto);
         // Set lại đời rank
         newPerson.setPersonRank(person.getPersonRank());
 

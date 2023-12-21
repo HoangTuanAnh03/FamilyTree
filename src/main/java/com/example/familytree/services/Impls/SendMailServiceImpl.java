@@ -5,7 +5,6 @@ import com.example.familytree.entities.FamilyTreeEntity;
 import com.example.familytree.entities.FamilyTreeUserEntity;
 import com.example.familytree.entities.UserAccountEntity;
 import com.example.familytree.models.dto.DataMailDto;
-import com.example.familytree.repositories.FamilyTreeRepo;
 import com.example.familytree.repositories.FamilyTreeUserRepo;
 import com.example.familytree.repositories.UserAccountRepo;
 import com.example.familytree.services.MailService;

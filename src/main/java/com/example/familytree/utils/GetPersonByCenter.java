@@ -19,8 +19,6 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class GetPersonByCenter {
-    private final PersonRepo personRepo;
-    private final SpouseRepo spouseRepo;
 
     public static int getParentIdByPersonId(int personId, ArrayList<PersonEntity> listPerson) {
         for (PersonEntity person : listPerson) {

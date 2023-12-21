@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,16 +52,29 @@ public class FamilyTreeController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/firstPersonId")
+    public ResponseEntity<ApiResult<?>> firstPersonId(@RequestParam int familyTreeId, HttpServletRequest request) {
+        ApiResult<?> result;
 
-//    @DeleteMapping("/delete")
-//    public ResponseEntity<ApiResult<?>> delete(HttpServletRequest request, @RequestParam int id) {
-//        ApiResult<?> result = null;
-//
-//        String email = BearerTokenUtil.getUserName(request);
-//
-//        return ResponseEntity.ok(result);
-//    }
+        String email = BearerTokenUtil.getUserName(request);
+        UserAccountEntity userByToken = userAccountRepo.findFirstByUserEmail(email);
+        // Cây có tồn tại
+        if (!familyTreeRepo.existsByFamilyTreeId(familyTreeId)) {
+            result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.NOT_FOUND_FAMILY_TREE, familyTreeId), null);
+            return ResponseEntity.ok(result);
+        }
 
+        // userBytoken có tồn tại trong cây không
+        if (!familyTreeUserRepo.existsByFamilyTreeIdAndUserIdAndUserTreeStatus(familyTreeId, userByToken.getUserId(), true)) {
+            result = ApiResult.create(HttpStatus.BAD_REQUEST, MessageFormat.format(Constants.USER_DOES_NOT_EXITS_IN_TREE_ID, familyTreeId, userByToken.getUserId()), null);
+            return ResponseEntity.ok(result);
+        }
+
+        FamilyTreeEntity familyTree = familyTreeRepo.findFirstByFamilyTreeId(familyTreeId);
+
+        result = ApiResult.create(HttpStatus.OK, "Lấy thành công firstPersonId trong cây!", familyTree.getPersonId());
+        return ResponseEntity.ok(result);
+    }
 
     @GetMapping("/list")
     public ResponseEntity<ApiResult<?>> list(HttpServletRequest request) {

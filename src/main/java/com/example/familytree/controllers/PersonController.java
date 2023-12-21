@@ -14,7 +14,6 @@ import com.example.familytree.services.PersonService;
 import com.example.familytree.shareds.Constants;
 import com.example.familytree.utils.BearerTokenUtil;
 import com.example.familytree.utils.SearchPersonByName;
-import com.nimbusds.jose.shaded.gson.Gson;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

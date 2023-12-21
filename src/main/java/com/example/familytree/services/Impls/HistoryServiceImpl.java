@@ -25,9 +25,9 @@ public class HistoryServiceImpl implements HistoryService {
         int familyTreeId = person.getFamilyTreeId();
         String objectEmptyJson = "{}";
 
-        Date createdTime = null;
-        Date updatedTime = null;
-        Date deletedTime = null;
+        Date createdTime;
+        Date updatedTime;
+        Date deletedTime;
 
         HistoryEntity historyEntity;
         HistoryEntity oldHistory;
