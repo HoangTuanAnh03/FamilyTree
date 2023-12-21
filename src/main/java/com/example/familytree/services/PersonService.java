@@ -1,6 +1,7 @@
 package com.example.familytree.services;
 
 import com.example.familytree.entities.PersonEntity;
+import com.example.familytree.entities.UserAccountEntity;
 import com.example.familytree.models.dto.PersonDto;
 import com.example.familytree.models.dto.UpdatePersonDto;
 import com.example.familytree.models.response.InfoAddPersonResponse;
@@ -30,7 +31,7 @@ public interface PersonService {
     void createPersonCopyVirtual(int fid, int pid, boolean gender);
 
     @Transactional
-    PersonEntity createPersonCopy(PersonEntity personEntity, int fid, int range);
+    PersonEntity createPersonCopy(PersonEntity personEntity, int fid, int range, UserAccountEntity userByEmail);
 
     PersonEntity updatePerson(UpdatePersonDto updatePersonDto);
 

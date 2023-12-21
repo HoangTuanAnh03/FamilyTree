@@ -2,11 +2,14 @@ package com.example.familytree.services.Impls;
 
 import com.example.familytree.entities.PersonEntity;
 import com.example.familytree.entities.SpouseEntity;
+import com.example.familytree.entities.UserAccountEntity;
+import com.example.familytree.enums.NotiTypeEnum;
 import com.example.familytree.models.dto.PersonDto;
 import com.example.familytree.models.dto.UpdatePersonDto;
 import com.example.familytree.models.response.InfoAddPersonResponse;
 import com.example.familytree.repositories.PersonRepo;
 import com.example.familytree.repositories.SpouseRepo;
+import com.example.familytree.services.NotificationService;
 import com.example.familytree.services.PersonService;
 import com.example.familytree.shareds.Constants;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ public class PersonServiceImpl implements PersonService {
     private final PersonRepo personRepo;
     private final SpouseRepo spouseRepo;
     private final JdbcTemplate jdbcTemplate;
+    private final NotificationService notificationService;
 
     @Override
     public InfoAddPersonResponse getInfoPerson(int personId, String option) {
@@ -163,7 +167,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @Transactional
-    public PersonEntity createPersonCopy(PersonEntity person, int fid, int range) {
+    public PersonEntity createPersonCopy(PersonEntity person, int fid, int range, UserAccountEntity userByEmail) {
         String jqlON = "SET IDENTITY_INSERT Person ON";
         jdbcTemplate.execute(jqlON);
         int personId = person.getPersonId() + range;
@@ -187,7 +191,11 @@ public class PersonServiceImpl implements PersonService {
         String jqlOFF = "SET IDENTITY_INSERT Person OFF";
         jdbcTemplate.execute(jqlOFF);
 
-        return personRepo.findFirstByPersonId(personId);
+        PersonEntity personResult = personRepo.findFirstByPersonId(personId);
+
+        notificationService.HandleInsertNotification(personResult, userByEmail, NotiTypeEnum.CREATE_PERSON);
+
+        return personResult;
     }
 
     @Override
@@ -449,6 +457,32 @@ public class PersonServiceImpl implements PersonService {
                 (person.getPersonGender() ? newPerson.getPersonId() : personID),
                 1
         );
+
+        // Tạo Spouse rỗng
+        if (person.getPersonGender()){
+            SpouseEntity spouse = spouseRepo.findFirstByHusbandIdAndWifeId(null, newPerson.getPersonId());
+            if (spouse == null){
+                SpouseEntity newSpouse1 = SpouseEntity.create(
+                        0,
+                        null,
+                        newPerson.getPersonId(),
+                        1
+                );
+                spouseRepo.save(newSpouse1);
+            }
+        } else {
+            SpouseEntity spouse = spouseRepo.findFirstByHusbandIdAndWifeId(newPerson.getPersonId(), null);
+            if (spouse == null){
+                SpouseEntity newSpouse1 = SpouseEntity.create(
+                        0,
+                        newPerson.getPersonId(),
+                        null,
+                        1
+                );
+                spouseRepo.save(newSpouse1);
+            }
+        }
+
         spouseRepo.save(newSpouse);
         // Tạo Spouse rỗng
         if ((newPerson.getPersonGender() && spouseRepo.findByHusbandId(newPerson.getPersonId()).stream().filter(x -> x.getWifeId() == null).toList().isEmpty()) || (!newPerson.getPersonGender() && spouseRepo.findByWifeId(newPerson.getPersonId()).stream().filter(x -> x.getHusbandId() == null).toList().isEmpty())){
